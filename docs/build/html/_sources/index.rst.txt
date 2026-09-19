@@ -1,60 +1,56 @@
-SR14
------
+.. image:: _static/trackedbot_logo.png
+   :align: center
+   :width: 140px
+   :alt: trackedbot logo
+
+trackedbot
+==========
+
+**trackedbot** is tracked robot.
+
+`trackedbot <https://en.wikipedia.org/wiki/Category:Tracked_robots>`_ is developed in C code: **100%**.
+
+.. image:: _static/body_platform.png
+   :align: center
+   :width: 500px
+   :alt: trackedbot Mobile Platform
+
+An autonomous tracked mobile robot platform built on the all-metal T101 aluminum chassis, powered by an Uno+WiFi R3 (ATmega328P + ESP8266) dual-processor board, L293D motor driver shield, and modular embedded C firmware adhering to SOLID and Hexagonal architecture principles.
+
+|GitHub issues| |GitHub contributors| |Documentation Status|
+
+.. |GitHub issues| image:: https://img.shields.io/github/issues/dof2bot/trackedbot.svg
+   :target: https://github.com/dof2bot/trackedbot/issues
+
+.. |GitHub contributors| image:: https://img.shields.io/github/contributors/dof2bot/trackedbot.svg
+   :target: https://github.com/dof2bot/trackedbot/graphs/contributors
+
+.. |Documentation Status| image:: https://readthedocs.org/projects/trackedbot/badge/?version=latest
+   :target: https://trackedbot.readthedocs.io/projects/trackedbot/en/latest/?badge=latest
+
+Project Structure
+-----------------
+
+The **trackedbot** project is organized into three decoupled layers:
 
 .. toctree::
- :hidden:
+   :maxdepth: 2
+   :caption: System Documentation
 
- self
+   mechanical
+   hardware
+   software
 
-**sr14** is tracked robot.
+Source Documentation
+--------------------
 
-`sr14 <https://en.wikipedia.org/wiki/Category:Tracked_robots>`_ is developed in C code: **100%**.
+* **Mechanical Architecture:** `body/README.md <https://github.com/dof2bot/trackedbot/blob/dev/body/README.md>`_
+* **Hardware & Electrical Architecture:** `hw/README.md <https://github.com/dof2bot/trackedbot/blob/dev/hw/README.md>`_
+* **Software Architecture:** `sw/README.md <https://github.com/dof2bot/trackedbot/blob/dev/sw/README.md>`_
+* **Binary Protocol (ICD):** `sw/protocol.md <https://github.com/dof2bot/trackedbot/blob/dev/sw/protocol.md>`_
 
-The README is used to introduce the tool and provide instructions on
-how to install the tool, any machine dependencies it may have and any
-other information that should be provided before the tool is installed.
-
-|GitHub issues| |Documentation Status| |GitHub contributors|
-
-.. |GitHub issues| image:: https://img.shields.io/github/issues/dof2bot/sr14.svg
-   :target: https://github.com/dof2bot/sr14/issues
-
-.. |GitHub contributors| image:: https://img.shields.io/github/contributors/dof2bot/sr14.svg
-   :target: https://github.com/dof2bot/sr14/graphs/contributors
-
-.. |Documentation Status| image:: https://readthedocs.org/projects/sr14/badge/?version=latest
-   :target: https://sr14.readthedocs.io/projects/sr14/en/latest/?badge=latest
-
-INSTALLATION
--------------
-
-Navigate to release `page`_ download and extract release archive.
-
-.. _page: https://github.com/dof2bot/sr14/releases
-
-To install **sr14** type the following:
-
-.. code-block:: bash
-
-   in progress
-
-DEPENDENCIES
--------------
-
-**sr14** requires next modules and libraries:
-    in progress
-
-PROJECT STRUCTURE
-------------------
-
-**sr14** is based on POP.
-
-.. code-block:: bash
-
-   in progress
-
-COPYRIGHT AND LICENCE
-----------------------
+Copyright and Licence
+---------------------
 
 |License: GPL v3| |License: Apache 2.0|
 
@@ -64,5 +60,4 @@ COPYRIGHT AND LICENCE
 .. |License: Apache 2.0| image:: https://img.shields.io/badge/License-Apache%202.0-blue.svg
    :target: https://opensource.org/licenses/Apache-2.0
 
-Copyright (C) 2020 by `dof2bot.github.io/sr14 <https://dof2bot.github.io/sr14>`_
-
+Copyright (C) 2020 by `dof2bot.github.io/trackedbot <https://dof2bot.github.io/trackedbot>`_
