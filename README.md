@@ -1,16 +1,4 @@
-<p align="center">
-  <img src="docs/trackedbot_logo.png" alt="trackedbot logo" width="140"/>
-</p>
-
-# trackedbot
-
-**trackedbot** is tracked robot.
- 
-[trackedbot](https://en.wikipedia.org/wiki/Category:Tracked_robots) is developed in C code: **100%**.
-
-![trackedbot Mobile Platform](body/images/body_platform.png)
-
-An autonomous tracked mobile robot platform built on the all-metal T101 aluminum chassis, powered by an Uno+WiFi R3 (ATmega328P + ESP8266) dual-processor board, L293D motor driver shield, and modular embedded C firmware adhering to SOLID and Hexagonal architecture principles.
+<img align="right" src="docs/trackedbot_logo.png" alt="trackedbot logo" width="25%"/>
 
 <!-- START doctoc -->
 **Table of Contents**
@@ -19,6 +7,10 @@ An autonomous tracked mobile robot platform built on the all-metal T101 aluminum
 - [Documentation](#documentation)
 - [Copyright and Licence](#copyright-and-licence)
 <!-- END doctoc -->
+
+An autonomous tracked mobile robot platform built on the all-metal T101 aluminum chassis, powered by an Uno+WiFi R3 (ATmega328P + ESP8266) dual-processor board, L293D motor driver shield, and modular embedded C firmware adhering to SOLID and Hexagonal architecture principles.
+
+![trackedbot Mobile Platform](body/images/body_platform.png)
 
 
 ### PROJECT STRUCTURE
