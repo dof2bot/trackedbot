@@ -1,67 +1,47 @@
-# sr14_bot
+<p align="center">
+  <img src="docs/trackedbot_logo.png" alt="trackedbot logo" width="140"/>
+</p>
 
-**sr14_bot** is tracked robot.
+# trackedbot
 
-[sr14_bot](https://en.wikipedia.org/wiki/Category:Tracked_robots) is developed in C code: **100%**.
+**trackedbot** is tracked robot.
+ 
+[trackedbot](https://en.wikipedia.org/wiki/Category:Tracked_robots) is developed in C code: **100%**.
 
-The README is used to introduce the tool and provide instructions on
-how to install the tool, any machine dependencies it may have and any
-other information that should be provided before the tool is installed.
+![trackedbot Mobile Platform](body/images/body_platform.png)
 
-[![GitHub issues open](https://img.shields.io/github/issues/dof2bot/sr14_bot.svg)](https://github.com/dof2bot/sr14_bot/issues)
- [![GitHub contributors](https://img.shields.io/github/contributors/dof2bot/sr14_bot.svg)](https://github.com/dof2bot/sr14_bot/graphs/contributors)
+An autonomous tracked mobile robot platform built on the all-metal T101 aluminum chassis, powered by an Uno+WiFi R3 (ATmega328P + ESP8266) dual-processor board, L293D motor driver shield, and modular embedded C firmware adhering to SOLID and Hexagonal architecture principles.
 
 <!-- START doctoc -->
 **Table of Contents**
 
-- [Installation](#installation)
-- [Usage](#usage)
-- [Dependencies](#dependencies)
-- [Project structure](#project-structure)
-- [Docs](#docs)
+- [Project Structure](#project-structure)
+- [Documentation](#documentation)
 - [Copyright and Licence](#copyright-and-licence)
 <!-- END doctoc -->
 
-### INSTALLATION
-
-Navigate to release [page](https://github.com/dof2bot/sr14_bot/releases) download and extract release archive.
-
-To install **sr14_bot** follow next instructions:
-```
-in progress
-```
-
-### USAGE
-
-Planned for combined operation with [pidrone](https://github.com/dof2bot/pidrone).
-```
-in progress
-```
-
-### DEPENDENCIES
-
-**sr14_bot** requires next modules and libraries:
-```
-in progress
-```
 
 ### PROJECT STRUCTURE
 
-**sr14_bot** is based on POP.
-```
-in progress
-```
+The **trackedbot** project is organized into three decoupled layers:
+
+- **[body/](body/README.md)** – Mechanical chassis, physical specs, track sizing, and assembly guide.
+- **[hw/](hw/README.md)** – Hardware schematics, Uno+WiFi R3, L293D shield, master pinout, and power distribution.
+- **[sw/](sw/README.md)** – Embedded C firmware architecture, SOLID design, ports & adapters, and drivers.
+
 
 ### DOCS
 
-[![Documentation Status](https://readthedocs.org/projects/sr14_bot/badge/?version=latest)](https://sr14_bot.readthedocs.io/projects/sr14_bot/en/latest/?badge=latest)
+[![Documentation Status](https://readthedocs.org/projects/trackedbot/badge/?version=latest)](https://trackedbot.readthedocs.io/projects/trackedbot/en/latest/?badge=latest)
 
 More documentation and info at:
-* [https://sr14_bot.readthedocs.io/en/latest/](https://sr14_bot.readthedocs.io/en/latest/)
+* **Mechanical Architecture:** [body/README.md](body/README.md)
+* **Hardware & Electrical Architecture:** [hw/README.md](hw/README.md)
+* **Software Architecture:** [sw/README.md](sw/README.md)
+* [https://trackedbot.readthedocs.io/en/latest/](https://trackedbot.readthedocs.io/en/latest/)
 
 ### COPYRIGHT AND LICENCE
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-Copyright (C) 2020 by [dof2bot.github.io/sr14_bot](https://dof2bot.github.io/sr14_bot)
-
+Copyright (C) 2020 - 2026 by [dof2bot.github.io/trackedbot](https://dof2bot.github.io/trackedbot)

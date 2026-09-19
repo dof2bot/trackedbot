@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Software Architecture &amp; SOLID Design &#8212; trackedbot 1.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css?v=ab2648fd" />
+    
+    <script src="_static/documentation_options.js?v=8d563738"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <script src="_static/sidebar.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Hardware &amp; Electrical Architecture" href="hardware.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="hardware.html" title="Hardware &amp; Electrical Architecture"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">trackedbot 1.0.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Software Architecture &amp; SOLID Design</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="software-architecture-solid-design">
+<h1>Software Architecture &amp; SOLID Design<a class="headerlink" href="#software-architecture-solid-design" title="Link to this heading">¶</a></h1>
+<p>The <strong>trackedbot</strong> firmware implements a <strong>Hexagonal Software Architecture (Ports &amp; Adapters)</strong> in Embedded C99 for the 8-bit AVR <strong>ATmega328P</strong> microcontroller (16 MHz).</p>
+<section id="architectural-principles">
+<h2>Architectural Principles<a class="headerlink" href="#architectural-principles" title="Link to this heading">¶</a></h2>
+<ol class="arabic simple">
+<li><p><strong>Dependency Inversion Principle (DIP):</strong> Contracts reside in <code class="docutils literal notranslate"><span class="pre">core/interfaces/</span></code>. Domain interactors define their port contracts (<code class="docutils literal notranslate"><span class="pre">imotor.h</span></code>, <code class="docutils literal notranslate"><span class="pre">icomm.h</span></code>, <code class="docutils literal notranslate"><span class="pre">motion_types.h</span></code>).</p></li>
+<li><p><strong>Single Responsibility Principle (SRP):</strong> Core domain logic in <code class="docutils literal notranslate"><span class="pre">core/</span></code> has zero dependencies on AVR hardware headers (<code class="docutils literal notranslate"><span class="pre">&lt;avr/io.h&gt;</span></code>) or registers. It is 100% portable C99 and testable on native host platforms.</p></li>
+<li><p><strong>Open/Closed Principle (OCP):</strong> Microcontroller peripherals (Timer0 PWM, 74HC595 shift register, USART0 with interrupt-driven ring buffers, Timer1 CTC) are encapsulated inside <code class="docutils literal notranslate"><span class="pre">drivers/</span></code> and implement core contracts.</p></li>
+<li><p><strong>Composition Root:</strong> The <code class="docutils literal notranslate"><span class="pre">main.c</span></code> file is the sole point where concrete drivers are injected into domain interactors and the hardware Watchdog (<code class="docutils literal notranslate"><span class="pre">wdt_enable(WDTO_2S)</span></code>) is managed.</p></li>
+</ol>
+</section>
+<section id="core-domain-components">
+<h2>Core Domain Components<a class="headerlink" href="#core-domain-components" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><strong>tracked_motion:</strong> Skid-steering kinematics computing differential track velocities.</p></li>
+<li><p><strong>slew_limiter:</strong> Periodic 20 ms acceleration ramp preventing battery voltage sag and L293D inrush current spikes.</p></li>
+<li><p><strong>command_parser:</strong> Robust line-based ASCII parser and binary frame decoder with CRC-8 validation.</p></li>
+<li><p><strong>failsafe_watchdog:</strong> Software watchdog monitoring communication activity and triggering an automatic stop upon link timeout.</p></li>
+<li><p><strong>ring_buffer:</strong> Lock-free Single-Producer Single-Consumer (SPSC) circular queue for asynchronous interrupt-driven UART.</p></li>
+</ul>
+</section>
+<section id="binary-communication-protocol-icd">
+<h2>Binary Communication Protocol (ICD)<a class="headerlink" href="#binary-communication-protocol-icd" title="Link to this heading">¶</a></h2>
+<p>The firmware implements a deterministic binary protocol over UART / Wi-Fi (115200 baud, 8-N-1):</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>+--------+--------+--------+--------------------------+--------+
+|  SYNC  | MSG_ID |  LEN   |         PAYLOAD          |  CRC8  |
+| 1 Byte | 1 Byte | 1 Byte |        0..16 Bytes       | 1 Byte |
++--------+--------+--------+--------------------------+--------+
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><strong>SYNC:</strong> <code class="docutils literal notranslate"><span class="pre">0xAA</span></code> frame synchronization delimiter.</p></li>
+<li><p><strong>MSG_ID:</strong> Message identifier (<code class="docutils literal notranslate"><span class="pre">0x01</span></code> CMD_MOTION, <code class="docutils literal notranslate"><span class="pre">0x02</span></code> CMD_SET_SPEED, <code class="docutils literal notranslate"><span class="pre">0x03</span></code> CMD_STOP, <code class="docutils literal notranslate"><span class="pre">0x04</span></code> CMD_PING, <code class="docutils literal notranslate"><span class="pre">0x10</span></code> CMD_GET_STATUS).</p></li>
+<li><p><strong>CRC8:</strong> ATM / SMBus polynomial (<span class="math notranslate nohighlight">\(x^8 + x^2 + x + 1\)</span>, <code class="docutils literal notranslate"><span class="pre">0x07</span></code>) protecting integrity.</p></li>
+</ul>
+</section>
+<section id="detailed-guides">
+<h2>Detailed Guides<a class="headerlink" href="#detailed-guides" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/dof2bot/trackedbot/blob/dev/sw/README.md">Software Architecture &amp; SOLID Design (sw/README.md)</a></p></li>
+<li><p><a class="reference external" href="https://github.com/dof2bot/trackedbot/blob/dev/sw/protocol.md">Binary Protocol Specification (sw/protocol.md)</a></p></li>
+</ul>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/trackedbot_logo.png" alt="Logo"/>
+            </a></p>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Software Architecture &amp; SOLID Design</a><ul>
+<li><a class="reference internal" href="#architectural-principles">Architectural Principles</a></li>
+<li><a class="reference internal" href="#core-domain-components">Core Domain Components</a></li>
+<li><a class="reference internal" href="#binary-communication-protocol-icd">Binary Communication Protocol (ICD)</a></li>
+<li><a class="reference internal" href="#detailed-guides">Detailed Guides</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="hardware.html"
+                          title="previous chapter">Hardware &amp; Electrical Architecture</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/software.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+<div id="sidebarbutton" title="Collapse sidebar">
+<span>«</span>
+</div>
+
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="hardware.html" title="Hardware &amp; Electrical Architecture"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">trackedbot 1.0.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Software Architecture &amp; SOLID Design</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2026, Vladimir Roncevic &lt;elektron.ronca@gmail.com&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
+    </div>
+  </body>
+</html>

@@ -1,226 +1,168 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
-<head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>SR14 &mdash; sr14_bot https://github.com/dof2bot/sr14_bot/releases/tag/v1.0.0 documentation</title>
-  
 
-  
-  
-  
-  
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
-  
+    <title>trackedbot &#8212; trackedbot 1.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css?v=ab2648fd" />
     
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
+    <script src="_static/documentation_options.js?v=8d563738"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
+    <script src="_static/sidebar.js"></script>
     
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
-</head>
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Mechanical Platform &amp; Chassis" href="mechanical.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="mechanical.html" title="Mechanical Platform &amp; Chassis"
+             accesskey="N">next</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">trackedbot 1.0.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">trackedbot</a></li> 
+      </ul>
+    </div>  
 
-<body class="wy-body-for-nav">
-
-   
-  <div class="wy-grid-for-nav">
-    
-    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
-          
-
-          
-            <a href="#" class="icon icon-home"> sr14_bot
-          
-
-          
-          </a>
-
-          
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
             
-            
-          
-
-          
-<div role="search">
-  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
-    <input type="hidden" name="check_keywords" value="yes" />
-    <input type="hidden" name="area" value="default" />
-  </form>
+  <a class="reference internal image-reference" href="_images/trackedbot_logo.png"><img alt="trackedbot logo" class="align-center" src="_images/trackedbot_logo.png" style="width: 140px;" />
+</a>
+<section id="trackedbot">
+<h1>trackedbot<a class="headerlink" href="#trackedbot" title="Link to this heading">¶</a></h1>
+<p><strong>trackedbot</strong> is tracked robot.</p>
+<p><a class="reference external" href="https://en.wikipedia.org/wiki/Category:Tracked_robots">trackedbot</a> is developed in C code: <strong>100%</strong>.</p>
+<a class="reference internal image-reference" href="_images/body_platform.png"><img alt="trackedbot Mobile Platform" class="align-center" src="_images/body_platform.png" style="width: 500px;" />
+</a>
+<p>An autonomous tracked mobile robot platform built on the all-metal T101 aluminum chassis, powered by an Uno+WiFi R3 (ATmega328P + ESP8266) dual-processor board, L293D motor driver shield, and modular embedded C firmware adhering to SOLID and Hexagonal architecture principles.</p>
+<p><a class="reference external" href="https://github.com/dof2bot/trackedbot/issues"><img alt="GitHub issues" src="https://img.shields.io/github/issues/dof2bot/trackedbot.svg" /></a> <a class="reference external" href="https://github.com/dof2bot/trackedbot/graphs/contributors"><img alt="GitHub contributors" src="https://img.shields.io/github/contributors/dof2bot/trackedbot.svg" /></a> <a class="reference external" href="https://trackedbot.readthedocs.io/projects/trackedbot/en/latest/?badge=latest"><img alt="Documentation Status" src="https://readthedocs.org/projects/trackedbot/badge/?version=latest" /></a></p>
+<section id="project-structure">
+<h2>Project Structure<a class="headerlink" href="#project-structure" title="Link to this heading">¶</a></h2>
+<p>The <strong>trackedbot</strong> project is organized into three decoupled layers:</p>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">System Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="mechanical.html">Mechanical Platform &amp; Chassis</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mechanical.html#platform-features-architecture">Platform Features &amp; Architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mechanical.html#t101-chassis-specifications">T101 Chassis Specifications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mechanical.html#skid-steering-kinematics">Skid-Steering Kinematics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mechanical.html#detailed-guides">Detailed Guides</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="hardware.html">Hardware &amp; Electrical Architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="hardware.html#hardware-stack-overview">Hardware Stack Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hardware.html#main-controller-uno-wifi-r3">Main Controller: Uno+WiFi R3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hardware.html#motor-driver-shield-l293d-74hc595">Motor Driver Shield: L293D &amp; 74HC595</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hardware.html#power-distribution-isolation">Power Distribution &amp; Isolation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hardware.html#detailed-guides">Detailed Guides</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="software.html">Software Architecture &amp; SOLID Design</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="software.html#architectural-principles">Architectural Principles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="software.html#core-domain-components">Core Domain Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="software.html#binary-communication-protocol-icd">Binary Communication Protocol (ICD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="software.html#detailed-guides">Detailed Guides</a></li>
+</ul>
+</li>
+</ul>
 </div>
+</section>
+<section id="source-documentation">
+<h2>Source Documentation<a class="headerlink" href="#source-documentation" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><strong>Mechanical Architecture:</strong> <a class="reference external" href="https://github.com/dof2bot/trackedbot/blob/dev/body/README.md">body/README.md</a></p></li>
+<li><p><strong>Hardware &amp; Electrical Architecture:</strong> <a class="reference external" href="https://github.com/dof2bot/trackedbot/blob/dev/hw/README.md">hw/README.md</a></p></li>
+<li><p><strong>Software Architecture:</strong> <a class="reference external" href="https://github.com/dof2bot/trackedbot/blob/dev/sw/README.md">sw/README.md</a></p></li>
+<li><p><strong>Binary Protocol (ICD):</strong> <a class="reference external" href="https://github.com/dof2bot/trackedbot/blob/dev/sw/protocol.md">sw/protocol.md</a></p></li>
+</ul>
+</section>
+<section id="copyright-and-licence">
+<h2>Copyright and Licence<a class="headerlink" href="#copyright-and-licence" title="Link to this heading">¶</a></h2>
+<p><a class="reference external" href="https://www.gnu.org/licenses/gpl-3.0"><img alt="License: GPL v3" src="https://img.shields.io/badge/License-GPLv3-blue.svg" /></a> <a class="reference external" href="https://opensource.org/licenses/Apache-2.0"><img alt="License: Apache 2.0" src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" /></a></p>
+<p>Copyright (C) 2020 by <a class="reference external" href="https://dof2bot.github.io/trackedbot">dof2bot.github.io/trackedbot</a></p>
+</section>
+</section>
 
-          
+
+            <div class="clearer"></div>
+          </div>
         </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
-              <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">SR14</a></li>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="#">
+              <img class="logo" src="_static/trackedbot_logo.png" alt="Logo"/>
+            </a></p>
+  <div>
+    <h3><a href="#">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">trackedbot</a><ul>
+<li><a class="reference internal" href="#project-structure">Project Structure</a></li>
+<li><a class="reference internal" href="#source-documentation">Source Documentation</a></li>
+<li><a class="reference internal" href="#copyright-and-licence">Copyright and Licence</a></li>
+</ul>
+</li>
 </ul>
 
-            
-          
-        </div>
-      </div>
-    </nav>
-
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
-          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="#">sr14_bot</a>
-        
-      </nav>
-
-
-      <div class="wy-nav-content">
-        
-        <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
-  <ul class="wy-breadcrumbs">
-    
-      <li><a href="#">Docs</a> &raquo;</li>
-        
-      <li>SR14</li>
-    
-    
-      <li class="wy-breadcrumbs-aside">
-        
-            
-            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
-          
-        
-      </li>
-    
-  </ul>
-
-  
-  <hr/>
-</div>
-          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
-           <div itemprop="articleBody">
-            
-  <div class="section" id="sr14">
-<h1>SR14<a class="headerlink" href="#sr14" title="Permalink to this headline">¶</a></h1>
-<div class="toctree-wrapper compound">
-</div>
-<p><strong>sr14</strong> is tracked robot.</p>
-<p><a class="reference external" href="https://en.wikipedia.org/wiki/Category:Tracked_robots">sr14</a> is developed in C code: <strong>100%</strong>.</p>
-<p>The README is used to introduce the tool and provide instructions on
-how to install the tool, any machine dependencies it may have and any
-other information that should be provided before the tool is installed.</p>
-<p><a class="reference external" href="https://github.com/dof2bot/sr14/issues"><img alt="GitHub issues" src="https://img.shields.io/github/issues/dof2bot/sr14.svg" /></a> <a class="reference external" href="https://sr14.readthedocs.io/projects/sr14/en/latest/?badge=latest"><img alt="Documentation Status" src="https://readthedocs.org/projects/sr14/badge/?version=latest" /></a> <a class="reference external" href="https://github.com/dof2bot/sr14/graphs/contributors"><img alt="GitHub contributors" src="https://img.shields.io/github/contributors/dof2bot/sr14.svg" /></a></p>
-</div>
-<div class="section" id="installation">
-<h1>INSTALLATION<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
-<p>Navigate to release <a class="reference external" href="https://github.com/dof2bot/sr14/releases">page</a> download and extract release archive.</p>
-<p>To install <strong>sr14</strong> type the following:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>in progress
-</pre></div>
-</div>
-</div>
-<div class="section" id="dependencies">
-<h1>DEPENDENCIES<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h1>
-<dl class="docutils">
-<dt><strong>sr14</strong> requires next modules and libraries:</dt>
-<dd>in progress</dd>
-</dl>
-</div>
-<div class="section" id="project-structure">
-<h1>PROJECT STRUCTURE<a class="headerlink" href="#project-structure" title="Permalink to this headline">¶</a></h1>
-<p><strong>sr14</strong> is based on POP.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>in progress
-</pre></div>
-</div>
-</div>
-<div class="section" id="copyright-and-licence">
-<h1>COPYRIGHT AND LICENCE<a class="headerlink" href="#copyright-and-licence" title="Permalink to this headline">¶</a></h1>
-<p><a class="reference external" href="https://www.gnu.org/licenses/gpl-3.0"><img alt="License: GPL v3" src="https://img.shields.io/badge/License-GPLv3-blue.svg" /></a> <a class="reference external" href="https://opensource.org/licenses/Apache-2.0"><img alt="License: Apache 2.0" src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" /></a></p>
-<p>Copyright (C) 2020 by <a class="reference external" href="https://dof2bot.github.io/sr14">dof2bot.github.io/sr14</a></p>
-</div>
-
-
-           </div>
-           
-          </div>
-          <footer>
-  
-
-  <hr/>
-
-  <div role="contentinfo">
-    <p>
-        &copy; Copyright 2020, Vladimir Roncevic &lt;elektron.ronca@gmail.com&gt;
-
-    </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
-
-</footer>
-
-        </div>
-      </div>
-
-    </section>
-
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="mechanical.html"
+                          title="next chapter">Mechanical Platform &amp; Chassis</a></p>
   </div>
-  
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/index.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+<div id="sidebarbutton" title="Collapse sidebar">
+<span>«</span>
+</div>
 
-
-  <script type="text/javascript">
-      jQuery(function () {
-          SphinxRtdTheme.Navigation.enable(true);
-      });
-  </script>
-
-  
-  
-    
-   
-
-</body>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="mechanical.html" title="Mechanical Platform &amp; Chassis"
+             >next</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">trackedbot 1.0.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">trackedbot</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2026, Vladimir Roncevic &lt;elektron.ronca@gmail.com&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
+    </div>
+  </body>
 </html>

@@ -1,0 +1,48 @@
+If:
+  PathMatch: .*\.h
+CompileFlags:
+  Add:
+    - -xc-header
+  Remove:
+    - -xobjective-c++-header
+    - -xobjective-c*
+
+---
+
+CompileFlags:
+  Add:
+    - --target=avr
+    - -mmcu=atmega328p
+    - -DF_CPU=16000000UL
+    - -D__AVR_ATmega328P__
+    - -D__AVR_DEVICE_NAME__=atmega328p
+    - -isystem
+    - /usr/lib/avr/include
+    - -isystem
+    - /usr/lib/gcc/avr/7.3.0/include
+    - -isystem
+    - /usr/lib/gcc/avr/7.3.0/include-fixed
+    - -I/data/dev/avr/trackedbot/github/trackedbot/sw/trackedbot
+    - -I/data/dev/avr/trackedbot/github/trackedbot/sw/trackedbot/core/interfaces
+    - -I/data/dev/avr/trackedbot/github/trackedbot/sw/trackedbot/core/tracked_motion
+    - -I/data/dev/avr/trackedbot/github/trackedbot/sw/trackedbot/core/slew_limiter
+    - -I/data/dev/avr/trackedbot/github/trackedbot/sw/trackedbot/core/command_parser
+    - -I/data/dev/avr/trackedbot/github/trackedbot/sw/trackedbot/core/command_parser/command
+    - -I/data/dev/avr/trackedbot/github/trackedbot/sw/trackedbot/core/failsafe_watchdog
+    - -I/data/dev/avr/trackedbot/github/trackedbot/sw/trackedbot/core/ring_buffer
+    - -I/data/dev/avr/trackedbot/github/trackedbot/sw/trackedbot/drivers/l293d_shield
+    - -I/data/dev/avr/trackedbot/github/trackedbot/sw/trackedbot/drivers/uart_avr
+    - -I/data/dev/avr/trackedbot/github/trackedbot/sw/trackedbot/drivers/shift_reg
+    - -I/data/dev/avr/trackedbot/github/trackedbot/sw/trackedbot/drivers/timer_avr
+    - -I/data/dev/avr/trackedbot/github/trackedbot/sw/trackedbot/core/error_handler
+    - -I/data/dev/avr/trackedbot/github/trackedbot/sw/trackedbot/core/telemetry_reporter
+    - -I/data/dev/avr/trackedbot/github/trackedbot/sw/trackedbot/core/crc8
+    - -I/data/dev/avr/trackedbot/github/trackedbot/sw/trackedbot/drivers/led_status
+    - -std=gnu99
+  Remove:
+    - -save-temps
+    - -gstabs
+    - -fpack-struct
+    - -fshort-enums
+    - -xobjective-c++-header
+    - -xobjective-c*

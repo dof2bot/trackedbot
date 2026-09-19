@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Mechanical Platform &amp; Chassis &#8212; trackedbot 1.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css?v=ab2648fd" />
+    
+    <script src="_static/documentation_options.js?v=8d563738"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <script src="_static/sidebar.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Hardware &amp; Electrical Architecture" href="hardware.html" />
+    <link rel="prev" title="trackedbot" href="index.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="hardware.html" title="Hardware &amp; Electrical Architecture"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="trackedbot"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">trackedbot 1.0.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Mechanical Platform &amp; Chassis</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="mechanical-platform-chassis">
+<h1>Mechanical Platform &amp; Chassis<a class="headerlink" href="#mechanical-platform-chassis" title="Link to this heading">¶</a></h1>
+<p>The mechanical structure of <strong>trackedbot</strong> is built around the <strong>T101 Mini Tracked Tank Chassis</strong>. It features a lightweight, high-strength 6061 aluminum alloy body, dual modular continuous caterpillar tracks, and two independent DC metal gearmotors for differential skid-steering locomotion.</p>
+<a class="reference internal image-reference" href="_images/body_platform.png"><img alt="T101 Tracked Platform" class="align-center" src="_images/body_platform.png" style="width: 480px;" />
+</a>
+<section id="platform-features-architecture">
+<h2>Platform Features &amp; Architecture<a class="headerlink" href="#platform-features-architecture" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><strong>Monolithic 6061 Aluminum Chassis:</strong> Precision CNC-bent 2.0 mm sandblasted and anodized aluminum frame resisting torsional strain during high-torque skid turns.</p></li>
+<li><p><strong>Top Equipment Deck:</strong> Equipped with a central cable pass-through hole (<span class="math notranslate nohighlight">\(\varnothing \approx 18\text{ mm}\)</span>) and four longitudinal adjustment slots for sensor and bracket mounting.</p></li>
+<li><p><strong>Electronics Standoff Pattern:</strong> Pre-drilled M3 mounting holes matching standard Arduino Uno R3 / Mega 2560 standoff dimensions (<span class="math notranslate nohighlight">\(53.3\text{ mm} \times 27.9\text{ mm}\)</span>).</p></li>
+<li><p><strong>Toothed Drive Sprockets (Rear):</strong> CNC machined aluminum sprockets keyed to motor D-shafts with M3 set-screws.</p></li>
+<li><p><strong>Bearing Idler Wheels (Front):</strong> Aluminum wheels with dual miniature ball bearings and a 5-screw outer retaining ring for track alignment.</p></li>
+<li><p><strong>Continuous Caterpillar Tracks:</strong> Modular engineering plastic (POM) interlocking links with exterior traction ribs and inner guide horns.</p></li>
+<li><p><strong>Lower Equipment Bay:</strong> Houses dual 25 mm DC gearmotors and the battery pack (2S Li-ion / LiPo) beneath the deck, ensuring a low center of gravity.</p></li>
+</ul>
+</section>
+<section id="t101-chassis-specifications">
+<h2>T101 Chassis Specifications<a class="headerlink" href="#t101-chassis-specifications" title="Link to this heading">¶</a></h2>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 35.0%" />
+<col style="width: 35.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Specification</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Chassis Model</strong></p></td>
+<td><p><strong>T101 Mini Tracked Platform</strong></p></td>
+<td><p>Modular all-metal construction</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Frame Material</strong></p></td>
+<td><p><strong>6061 Aluminum Alloy</strong></p></td>
+<td><p>2.0 mm thickness, anodized</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Track Material</strong></p></td>
+<td><p><strong>Engineering Plastic (POM)</strong></p></td>
+<td><p>Interlocking links with steel hinge pins</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Dimensions (L x W x H)</strong></p></td>
+<td><p><strong>~190 mm x 165 mm x 60 mm</strong></p></td>
+<td><p>Compact desktop footprint</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Track Width</strong></p></td>
+<td><p><strong>~40 mm</strong></p></td>
+<td><p>Large contact patch distributing ground pressure</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Track Gauge (W)</strong></p></td>
+<td><p><strong>~125 mm</strong></p></td>
+<td><p>Centerline distance between tracks</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Ground Clearance</strong></p></td>
+<td><p><strong>~18 mm</strong></p></td>
+<td><p>Center underbody clearance</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Unladen Weight</strong></p></td>
+<td><p><strong>~530 g</strong></p></td>
+<td><p>Frame, wheels, motors, tracks</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Maximum Payload</strong></p></td>
+<td><p><strong>~2.0 kg – 3.0 kg</strong></p></td>
+<td><p>Capacity for battery and electronics</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Locomotion Mode</strong></p></td>
+<td><p><strong>Differential Skid-Steering</strong></p></td>
+<td><p>Zero-radius in-place spin (<span class="math notranslate nohighlight">\(R = 0\)</span>)</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="skid-steering-kinematics">
+<h2>Skid-Steering Kinematics<a class="headerlink" href="#skid-steering-kinematics" title="Link to this heading">¶</a></h2>
+<p>Differential tracked locomotion relies on differing track velocities (<span class="math notranslate nohighlight">\(v_L\)</span> and <span class="math notranslate nohighlight">\(v_R\)</span>) to steer:</p>
+<div class="math notranslate nohighlight">
+\[v = \frac{v_R + v_L}{2}, \quad \omega = \frac{v_R - v_L}{W}\]</div>
+<ul class="simple">
+<li><p><strong>Straight Drive:</strong> <span class="math notranslate nohighlight">\(v_L = v_R\)</span> (Equal PWM duty cycles).</p></li>
+<li><p><strong>Pivot Turn:</strong> <span class="math notranslate nohighlight">\(v_L = 0\)</span> or <span class="math notranslate nohighlight">\(v_R = 0\)</span> (Robot pivots around the stationary track; radius <span class="math notranslate nohighlight">\(R = W/2\)</span>).</p></li>
+<li><p><strong>Zero-Radius Spin:</strong> <span class="math notranslate nohighlight">\(v_L = -v_R\)</span> (Robot spins about its geometric center with radius <span class="math notranslate nohighlight">\(R = 0\)</span>).</p></li>
+</ul>
+</section>
+<section id="detailed-guides">
+<h2>Detailed Guides<a class="headerlink" href="#detailed-guides" title="Link to this heading">¶</a></h2>
+<p>For the complete mechanical documentation and step-by-step construction guide:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/dof2bot/trackedbot/blob/dev/body/README.md">Mechanical Architecture Overview (body/README.md)</a></p></li>
+<li><p><a class="reference external" href="https://github.com/dof2bot/trackedbot/blob/dev/body/assembly_guide.md">Step-by-Step Assembly Guide (body/assembly_guide.md)</a></p></li>
+</ul>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/trackedbot_logo.png" alt="Logo"/>
+            </a></p>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Mechanical Platform &amp; Chassis</a><ul>
+<li><a class="reference internal" href="#platform-features-architecture">Platform Features &amp; Architecture</a></li>
+<li><a class="reference internal" href="#t101-chassis-specifications">T101 Chassis Specifications</a></li>
+<li><a class="reference internal" href="#skid-steering-kinematics">Skid-Steering Kinematics</a></li>
+<li><a class="reference internal" href="#detailed-guides">Detailed Guides</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="index.html"
+                          title="previous chapter">trackedbot</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="hardware.html"
+                          title="next chapter">Hardware &amp; Electrical Architecture</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/mechanical.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+<div id="sidebarbutton" title="Collapse sidebar">
+<span>«</span>
+</div>
+
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="hardware.html" title="Hardware &amp; Electrical Architecture"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="trackedbot"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">trackedbot 1.0.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Mechanical Platform &amp; Chassis</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2026, Vladimir Roncevic &lt;elektron.ronca@gmail.com&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
+    </div>
+  </body>
+</html>
