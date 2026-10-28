@@ -70,26 +70,57 @@ Located directly beneath the upper aluminum deck, the central chassis cavity enc
 
 The following ASCII schematic illustrates the physical top-down layout and component distribution observed in [images/body_platform.png](images/body_platform.png):
 
-```
-                             FRONT (Approach Side)
-             [Bearing Idler]                     [Bearing Idler]
-           +=======================================================+
-           |  |###|      /---------------------------\     |###|   |
-           |  |###|     |   (o)   [ Slot 1 ]   [ Slot 2 ]  (o) |###|   |
-           |  | T |     |                               |  | T |   |
-           |  | R |     |   (o)   Arduino Uno R3 Standoffs  | R |   |
-           |  | A |     |                               |  | A |   |
-           |  | C |     |         ( O ) Wire Port       |  | C |   |
-           |  | K |     |                               |  | K |   |
-           |  |   |     |   (o)                         (o) |  |   |
-           |  | L |     |         [ Slot 3 ]   [ Slot 4 ] |  | R |   |
-           |  | E |     |   (o)                         (o) |  | I |   |
-           |  | F |     \-----------------------------/    |  | G |   |
-           |  | T |          [DC Gearmotor 1]  [DC Gearmotor 2]   | H |   |
-           |  |###|      (Internal Lower Equipment Bay)    |###|   |
-           +=======================================================+
-             [Drive Sprocket]                    [Drive Sprocket]
-                              REAR (Motor Drive Side)
+```mermaid
+flowchart TD
+    subgraph Front ["FRONT (Obstacle Approach Side)"]
+        direction LR
+        IDLER_L["Left Bearing Idler<br/>(Dual Ball Bearings + Flange)"]
+        APPROACH["Approach Clearance (~18 mm)"]
+        IDLER_R["Right Bearing Idler<br/>(Dual Ball Bearings + Flange)"]
+    end
+
+    subgraph ChassisDeck ["T101 Top Equipment Deck (2.0 mm 6061 Aluminum)"]
+        direction TB
+
+        subgraph UpperSlots ["Accessory Mounts (Front)"]
+            SLOT1["Mounting Slot 1 (4 x 35 mm)"]
+            SLOT2["Mounting Slot 2 (4 x 35 mm)"]
+        end
+
+        subgraph ElectronicsBay ["Electronics Mounting Pattern"]
+            STANDOFFS["M3 Controller Standoff Pattern<br/>(53.3 mm x 27.9 mm Arduino Uno Footprint)"]
+            WIRE_PORT["Central Wire Port (18 mm)<br/>Vertical Wiring Harness Pass-Through"]
+        end
+
+        subgraph LowerSlots ["Accessory Mounts (Rear)"]
+            SLOT3["Mounting Slot 3 (4 x 35 mm)"]
+            SLOT4["Mounting Slot 4 (4 x 35 mm)"]
+        end
+    end
+
+    subgraph InternalBay ["Internal Lower Equipment Bay (Below Deck)"]
+        MOTOR1["DC Metal Gearmotor 1 (Right Track)"]
+        BATTERY["Low-CG Battery Bay (2S Li-Ion / LiPo)"]
+        MOTOR2["DC Metal Gearmotor 2 (Left Track)"]
+    end
+
+    subgraph Rear ["REAR (Drive Sprocket Side)"]
+        direction LR
+        SPROCKET_L["Left Toothed Drive Sprocket<br/>(Keyed to Motor D-Shaft)"]
+        SPROCKET_R["Right Toothed Drive Sprocket<br/>(Keyed to Motor D-Shaft)"]
+    end
+
+    subgraph Tracks ["Differential Track Belts"]
+        TRACK_L["Left Track: Interlocking POM Links"]
+        TRACK_R["Right Track: Interlocking POM Links"]
+    end
+
+    IDLER_L --- TRACK_L --- SPROCKET_L
+    IDLER_R --- TRACK_R --- SPROCKET_R
+
+    Front --> ChassisDeck
+    ChassisDeck --> InternalBay
+    InternalBay --> Rear
 ```
 
 ---
@@ -118,19 +149,34 @@ The following ASCII schematic illustrates the physical top-down layout and compo
 
 Differential tracked locomotion relies on differing track velocities ($v_L$ and $v_R$) to effect steering:
 
-```
-          v_L (Left Track)               v_R (Right Track)
-                 ^                              ^
-                 |                              |
-            +----+----+                    +----+----+
-            |  TRACK  |                    |  TRACK  |
-            |  LEFT   | <---- W = 125 mm ->|  RIGHT  |
-            +----+----+                    +----+----+
-                 |                              |
-                 +--------------+---------------+
-                                |
-                   Linear Velocity:  v = (v_R + v_L) / 2
-                   Angular Velocity: omega = (v_R - v_L) / W
+```mermaid
+flowchart TD
+    subgraph CHASSIS ["Differential Drive Platform (Track Gauge W = 125 mm)"]
+        direction LR
+        subgraph LEFT_SIDE ["Left Drive Track"]
+            TL["TRACK LEFT<br/>(Motor 3, D6 PWM)"] --> VL["Velocity: v_L"]
+        end
+
+        TL <-->|"Track Gauge W = 125 mm"| TR
+
+        subgraph RIGHT_SIDE ["Right Drive Track"]
+            TR["TRACK RIGHT<br/>(Motor 1, D11 PWM)"] --> VR["Velocity: v_R"]
+        end
+    end
+
+    subgraph KINEMATICS ["Kinematic Equations of Motion"]
+        direction TB
+        V_LIN["Linear Forward Velocity:<br/>v = (v_R + v_L) / 2"]
+        OMEGA["Angular Turn Rate:<br/>ω = (v_R - v_L) / W"]
+        RADIUS["Steering Arc Radius:<br/>R = (W / 2) · (v_R + v_L) / (v_R - v_L)"]
+    end
+
+    CHASSIS --> KINEMATICS
+
+    style CHASSIS fill:#e1f5fe,stroke:#0288d1,stroke-width:2px
+    style LEFT_SIDE fill:#ffffff,stroke:#03a9f4,stroke-width:1px
+    style RIGHT_SIDE fill:#ffffff,stroke:#03a9f4,stroke-width:1px
+    style KINEMATICS fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
 ```
 
 - **Straight Forward/Reverse:** $v_L = v_R$ (Both tracks driven at equal PWM duty cycles).

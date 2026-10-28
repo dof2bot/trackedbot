@@ -19,50 +19,53 @@ Comprehensive engineering documentation for the electrical hardware, controller 
 
 The **tracked_bot** platform implements a modular dual-processor computing architecture using the standard Arduino Uno R3 mechanical and electrical footprint:
 
-```
-  +---------------------------------------------------------------------------------------------------+
-  |                                   TRACKED_BOT HARDWARE SYSTEM                                     |
-  +---------------------------------------------------------------------------------------------------+
+```mermaid
+flowchart TD
+    CLIENT["Remote Wi-Fi Client<br/>(PC / Smartphone / ROS Node)"]
 
-     [ Remote Wi-Fi Client ] (PC / Smartphone / ROS Node)
-                |
-                | IEEE 802.11 b/g/n (UDP/TCP Telemetry & Motion Commands)
-                v
-  +-----------------------------+---------------------------------------------------------------------+
-  | MAIN CONTROLLER BOARD       | TZT Uno WiFi R3                                                     |
-  |                             +---------------------------------------------------------------------+
-  |   +---------------------+   |   +-----------------------+             +-----------------------+   |
-  |   |       CH340G        |   |   |        ESP8266        |             |      ATmega328P       |   |
-  |   |    USB-to-UART      |   |   |   Wi-Fi Coprocessor   |             |   Primary MCU Core    |   |
-  |   +----------+----------+   |   +-----------+-----------+             +-----------+-----------+   |
-  |              |              |               |                                 |                   |
-  |              +--------------+-------[ 8-Position DIP Switch ]-----------------+                   |
-  |                                   (Serial UART D0/RX, D1/TX)                                      |
-  |                                                                                       |           |
-  |                             Fast PWM (D6/OC0A Left, D11/OC2A Right) <----------------+           |
-  |                             74HC595 Shift Bus (D4/CLK, D7/EN, D8/SER, D12/LATCH) <----+           |
-  |                             Sensors & ADC Bus (A0..A5, D2/INT0) <---------------------+           |
-  +-----------------------------+---------------------------------------------------------|-----------+
-                                                                                          |
-                                                                                          v
-  +-----------------------------+---------------------------------------------------------------------+
-  | MOTOR DRIVER SHIELD         | L293D Motor Driver Shield                                           |
-  |                             +---------------------------------------------------------------------+
-  |   +---------------------+   |   +-----------------------+             +-----------------------+   |
-  |   |      74HC595        |   |   |       L293D IC1       |             |       L293D IC2       |   |
-  |   | 8-Bit Shift Reg     |======>| Dual H-Bridge Driver  |             | Dual H-Bridge Driver  |   |
-  |   | (Dir Demux Q0..Q7)  |   |   | (Right Track M1)      |             | (Left Track M3)       |   |
-  |   +---------------------+   |   +-----------+-----------+             +-----------+-----------+   |
-  |                             |               |                                     |               |
-  +-----------------------------+---------------|-------------------------------------|---------------+
-                                                |                                     |
-                                                | (Right Track M1)                    | (Left Track M3)
-                                                +------------------+   +--------------+
-                                                                   |   |
-                                                                   v   v
-  +---------------------------------------------------------------------------------------------------+
-  | LOCOMOTION PLATFORM         | T101 Aluminum Chassis + Dual DC Geared Motors + Rubber Tracks       |
-  +---------------------------------------------------------------------------------------------------+
+    subgraph MainBoard ["Main Controller Board: TZT Uno WiFi R3"]
+        direction TB
+
+        subgraph CommMultiplex ["Communications & DIP Multiplexing"]
+            CH340G["CH340G<br/>(USB-to-UART)"]
+            DIP{"8-Position DIP Switch<br/>(UART Route)"}
+            ESP["ESP8266EX<br/>(Wi-Fi Coprocessor)"]
+        end
+
+        ATMEGA["ATmega328P<br/>(Primary Motion MCU Core, 16 MHz)"]
+
+        CH340G <-->|"Serial Lines"| DIP
+        ESP <-->|"Serial Lines"| DIP
+        DIP <-->|"Serial UART (D0/RX, D1/TX)"| ATMEGA
+    end
+
+    subgraph Shield ["Motor Driver Shield: L293D"]
+        direction TB
+        SHIFT["74HC595<br/>8-Bit Shift Register<br/>(Direction Demux Q0..Q7)"]
+        IC1["L293D IC1<br/>Dual H-Bridge Driver<br/>(Right Track M1)"]
+        IC2["L293D IC2<br/>Dual H-Bridge Driver<br/>(Left Track M3)"]
+
+        SHIFT ==>|"Direction Control Bits"| IC1
+        SHIFT ==>|"Direction Control Bits"| IC2
+    end
+
+    subgraph Chassis ["Locomotion Platform: T101 Aluminum Chassis"]
+        MOTOR_R["Right Track DC Geared Motor (M1)"]
+        MOTOR_L["Left Track DC Geared Motor (M3)"]
+        TRACKS["Modular Rubber/Plastic Caterpillar Tracks"]
+
+        MOTOR_R --> TRACKS
+        MOTOR_L --> TRACKS
+    end
+
+    CLIENT ==>|"IEEE 802.11 b/g/n (UDP/TCP Frames)"| ESP
+
+    ATMEGA -->|"Fast PWM (D6/OC0A Left, D11/OC2A Right)"| IC2 & IC1
+    ATMEGA -->|"74HC595 Shift Bus (D4/CLK, D7/EN, D8/SER, D12/LATCH)"| SHIFT
+    ATMEGA -.->|"Sensors & ADC Bus (A0..A5, D2/INT0)"| Shield
+
+    IC1 ==>|"PWM Drive (M1)"| MOTOR_R
+    IC2 ==>|"PWM Drive (M3)"| MOTOR_L
 ```
 
 ---

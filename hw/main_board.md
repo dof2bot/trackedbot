@@ -167,32 +167,47 @@ When flashing an updated Wi-Fi firmware image or Arduino ESP8266 sketch:
 
 ## ⚡ Hardware Interconnection Architecture
 
+```mermaid
+flowchart TD
+    subgraph Host ["Development PC / Host"]
+        USB["USB Host Interface"]
+    end
+
+    subgraph Network ["Wireless Network"]
+        WIFI["Wi-Fi 802.11 b/g/n Client"]
+    end
+
+    subgraph UnoBoard ["TZT Uno WiFi R3 Main Board"]
+        direction TB
+
+        subgraph CommLayer ["Serial Communications & Multiplexing"]
+            CH340G["CH340G<br/>(USB-to-UART Bridge)"]
+            DIP{"8-Position DIP Switch<br/>(UART Multiplexer)"}
+            ESP["ESP8266EX<br/>(Wi-Fi SoC, 32Mb Flash)"]
+        end
+
+        ATMEGA["ATmega328P<br/>(Primary Motion MCU, 16 MHz)"]
+
+        CH340G <-->|"UART TX/RX"| DIP
+        ESP <-->|"UART TX/RX"| DIP
+        DIP <-->|"Hardware USART (D0/RX, D1/TX)"| ATMEGA
+    end
+
+    subgraph MotorShield ["L293D Motor Driver Shield"]
+        direction TB
+        L293D_CTRL["74HC595 Shift Register (Direction Latch)"]
+        L293D_DRV["Dual L293D H-Bridges (IC1, IC2)"]
+        L293D_CTRL --> L293D_DRV
+    end
+
+    USB ==>|"USB Cable"| CH340G
+    WIFI <==>|"802.11 b/g/n RF"| ESP
+
+    ATMEGA -->|"PWM D5/D6 (Speed Control)"| L293D_DRV
+    ATMEGA -->|"SPI Bit-Bang D4/D7/D8/D12"| L293D_CTRL
+    ATMEGA -.->|"ADC A0..A5 Breakout"| MotorShield
 ```
-                 +------------------------------------------------+
-                 |              TZT Uno WiFi R3 Main Board        |
-                 |                                                |
-                 |   +------------+           +---------------+   |
- [USB to PC] ======> |   CH340G   |           |    ESP8266    |   |
-                 |   |  USB-UART  |           |   Wi-Fi SoC   | <===> [Wi-Fi 802.11 b/g/n]
-                 |   +-----+------+           +-------+-------+   |
-                 |         |                          |           |
-                 |         +----[ 8-Position DIP ]----+           |
-                 |                      |                         |
-                 |            (Serial D0/RX, D1/TX)               |
-                 |                      |                         |
-                 |              +-------v-------+                 |
-                 |              |  ATmega328P   |                 |
-                 |              | Primary MCU   |                 |
-                 |              +-------+-------+                 |
-                 +----------------------|-------------------------+
-                                        |
-                 (PWM D5/D6, Shift Reg D4/D7/D8/D12, ADC A0..A5)
-                                        |
-                 +----------------------v-------------------------+
-                 |        L293D Motor Driver Shield               |
-                 |  (IC1, IC2 H-Bridges + 74HC595 Shift Register) |
-                 +------------------------------------------------+
-```
+
 
 For the motor shield driver circuits and register assignments, refer to [motor_shield.md](motor_shield.md). For power rail wiring and battery safety, refer to [power_supply.md](power_supply.md).
 
