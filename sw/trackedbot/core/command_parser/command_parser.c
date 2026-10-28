@@ -2,12 +2,12 @@
  * @file command_parser.c
  * Copyright (C) 2026 Vladimir Roncevic <elektron.ronca@gmail.com>
  *
- * sr14_bot is free software: you can redistribute it and/or modify it
+ * trackedbot is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * sr14_bot is distributed in the hope that it will be useful, but
+ * trackedbot is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
@@ -159,10 +159,12 @@ motion_status_t command_parser_process(command_parser_t *parser) {
     case PARSER_STATE_READ_LEN:
       parser->payload_len = ch;
       parser->payload_index = 0;
-      if (parser->payload_len > (uint8_t)PROTOCOL_MAX_PAYLOAD_LEN) {
+
+      if (parser->payload_len > (uint8_t)PAYLOAD_LEN_MAX) {
         if (parser->dispatcher.error_handler != (void *)0) {
           (void)error_handler_report(parser->dispatcher.error_handler, ERR_CODE_CMD_SYNTAX_ERROR);
         }
+
         (void)telemetry_reporter_send_nack(&parser->dispatcher.stream, parser->msg_id, ERR_CODE_CMD_SYNTAX_ERROR);
         parser->state = PARSER_STATE_WAIT_SYNC;
       } else if (parser->payload_len == 0) {
@@ -174,25 +176,30 @@ motion_status_t command_parser_process(command_parser_t *parser) {
 
     case PARSER_STATE_READ_PAYLOAD:
       parser->payload_buffer[parser->payload_index++] = ch;
+
       if (parser->payload_index >= parser->payload_len) {
         parser->state = PARSER_STATE_CHECK_CRC;
       }
+
       break;
 
     case PARSER_STATE_CHECK_CRC: {
       uint8_t expected_crc = crc8_update(0x00, parser->msg_id);
       expected_crc = crc8_update(expected_crc, parser->payload_len);
+
       for (uint8_t i = 0; i < parser->payload_len; ++i) {
         expected_crc = crc8_update(expected_crc, parser->payload_buffer[i]);
       }
 
       if (ch == expected_crc) {
-        (void
-        )command_dispatcher_execute(&parser->dispatcher, parser->msg_id, parser->payload_buffer, parser->payload_len);
+        (void)command_dispatcher_execute(
+            &parser->dispatcher, parser->msg_id, parser->payload_buffer, parser->payload_len
+        );
       } else {
         if (parser->dispatcher.error_handler != (void *)0) {
           (void)error_handler_report(parser->dispatcher.error_handler, ERR_CODE_COMM_CRC);
         }
+
         (void)telemetry_reporter_send_nack(&parser->dispatcher.stream, parser->msg_id, ERR_CODE_COMM_CRC);
       }
 

@@ -2,12 +2,12 @@
  * @file led_status.c
  * Copyright (C) 2026 Vladimir Roncevic <elektron.ronca@gmail.com>
  *
- * sr14_bot is free software: you can redistribute it and/or modify it
+ * trackedbot is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * sr14_bot is distributed in the hope that it will be useful, but
+ * trackedbot is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
@@ -58,8 +58,10 @@
 #include "led_status.h"
 #include <avr/io.h>
 
-/* LED pin D13 (Port B, Bit 5). */
-static const uint8_t STATUS_LED_PIN_BIT = 5;
+/* Diagnostic LED pin bit position on AVR Port B (PB5). */
+enum {
+  STATUS_LED_PIN_BIT = PORTB5 /**< Diagnostic status LED pin (Arduino D13 -> PB5). */
+};
 
 /* Last time (ms) when LED state was toggled. */
 static uint32_t s_last_toggle_time = 0;

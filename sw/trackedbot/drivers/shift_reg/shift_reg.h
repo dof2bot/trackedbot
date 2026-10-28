@@ -2,12 +2,12 @@
  * @file shift_reg.h
  * Copyright (C) 2026 Vladimir Roncevic <elektron.ronca@gmail.com>
  *
- * sr14_bot is free software: you can redistribute it and/or modify it
+ * trackedbot is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * sr14_bot is distributed in the hope that it will be useful, but
+ * trackedbot is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
@@ -23,10 +23,10 @@
  * Subsystem Topology:
  *   ATmega328P (4 pins)              74HC595 (8 outputs)              L293D H-Bridges
  *  +--------------------+            +-------------------+            +---------------+
- *  | Arduino D4  (PD4)  |--- CLK --->| SH_CP (Shift Clk) |            | M1 Direction  |
+ *  | Arduino D4  (PD4)  |--- CLK --->| SH_CP (Shift Clk) |            | M1 Right Track|
  *  | Arduino D7  (PD7)  |--- EN ---->| OE    (Out Enable)|--- Q0..Q7->| M2 Direction  |
  *  | Arduino D8  (PB0)  |--- SER --->| DS    (Data In)   |            | M3 Left Track |
- *  | Arduino D12 (PB4)  |--- LATCH-->| ST_CP (Latch Clk) |            | M4 Right Track|
+ *  | Arduino D12 (PB4)  |--- LATCH-->| ST_CP (Latch Clk) |            | M4 Direction  |
  *  +--------------------+            +-------------------+            +---------------+
  *
  * Hardware Pin Mapping on ATmega328P (Arduino Uno):
@@ -46,7 +46,7 @@
  *  +--------+--------+--------+--------+--------+--------+--------+--------+
  *  |  M3_B  |  M4_B  |  M3_A  |  M2_B  |  M1_B  |  M1_A  |  M2_A  |  M4_A  |
  *  +--------+--------+--------+--------+--------+--------+--------+--------+
- *  Note: M3 controls Left Track (IC2), M4 controls Right Track (IC2).
+ *  Note: M3 controls Left Track (IC2), M1 controls Right Track (IC1).
  *
  * Serial Shift Timing Diagram:
  *  DIR_LATCH (PB4) ---\___________________________________________/--- (ST_CP)

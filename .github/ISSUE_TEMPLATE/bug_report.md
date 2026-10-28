@@ -1,7 +1,7 @@
 ---
 name: Bug report
 about: Create a report to help us improve
-title: "[sr14_bot]"
+title: "[trackedbot]"
 labels: bug
 assignees: vroncevic
 

@@ -22,6 +22,7 @@ release = '1.0.0'
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
+    'sphinx.ext.githubpages',
 ]
 
 # Support Markdown (.md) files if myst_parser is installed
@@ -34,6 +35,23 @@ try:
     }
 except ImportError:
     source_suffix = '.rst'
+
+# Support Mermaid diagrams if sphinxcontrib.mermaid is installed
+try:
+    import sphinxcontrib.mermaid  # type: ignore
+    extensions.append('sphinxcontrib.mermaid')
+except ImportError:
+    pass
+
+# -- Options for sphinxcontrib.mermaid ---------------------------------------
+# Client-side JavaScript rendering via CDN (no server-side node/npm needed)
+mermaid_version = '10.9.1'
+mermaid_output_format = 'raw'
+
+# Map ```mermaid code fences in Markdown files to the mermaid directive
+myst_fence_as_directive = {
+    'mermaid': 'mermaid',
+}
 
 templates_path = ['_templates']
 master_doc = 'index'

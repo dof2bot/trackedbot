@@ -1,7 +1,7 @@
 ---
 name: Feature request
 about: Suggest an idea for this project
-title: "[sr14_bot]"
+title: "[trackedbot]"
 labels: enhancement
 assignees: vroncevic
 

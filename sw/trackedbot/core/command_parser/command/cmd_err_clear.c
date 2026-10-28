@@ -22,11 +22,7 @@
 #include "binary_protocol_types.h"
 #include "telemetry_reporter.h"
 
-bool cmd_err_clear_execute(
-    error_handler_t *eh,
-    comm_stream_t *stream,
-    uint8_t msg_id
-) {
+bool cmd_err_clear_execute(error_handler_t *eh, comm_stream_t *stream, uint8_t msg_id) {
   if (stream == (void *)0) {
     return false;
   }

@@ -2,12 +2,12 @@
  * @file binary_protocol_types.h
  * Copyright (C) 2026 Vladimir Roncevic <elektron.ronca@gmail.com>
  *
- * sr14_bot is free software: you can redistribute it and/or modify it
+ * trackedbot is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * sr14_bot is distributed in the hope that it will be useful, but
+ * trackedbot is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
@@ -64,11 +64,18 @@ extern "C" {
 #endif
 
 /**
- * @brief Wire-level frame framing delimiters and buffer sizing limits.
+ * @brief Wire-level frame framing delimiter and structural metrics.
  */
 enum {
-  PROTOCOL_SYNC_BYTE = 0xAA,    /**< Frame start synchronization delimiter (170 dec). */
-  PROTOCOL_MAX_PAYLOAD_LEN = 16 /**< Maximum allowable payload length in bytes. */
+  PROTOCOL_SYNC_BYTE = 0xAA, /**< Frame start synchronization delimiter (170 dec). */
+  FRAME_OFFSET_SYNC = 0,     /**< Byte offset of SYNC delimiter in frame. */
+  FRAME_OFFSET_MSG_ID = 1,   /**< Byte offset of MSG_ID in frame. */
+  FRAME_OFFSET_LEN = 2,      /**< Byte offset of payload length in frame. */
+  FRAME_OFFSET_PAYLOAD = 3,  /**< Byte offset where payload data begins. */
+  FRAME_HEADER_SIZE = 3,     /**< Total size of frame header (SYNC + MSG_ID + LEN). */
+  FRAME_CRC_SIZE = 1,        /**< Size of trailing CRC-8 checksum byte. */
+  FRAME_OVERHEAD_SIZE = 4,   /**< Total frame overhead (FRAME_HEADER_SIZE + FRAME_CRC_SIZE). */
+  FRAME_CRC_HEADER_LEN = 2   /**< Number of header bytes covered by CRC-8 (MSG_ID + LEN). */
 };
 
 /**
@@ -100,9 +107,10 @@ typedef enum {
 } protocol_resp_id_t;
 
 /**
- * @brief Fixed payload byte lengths for command and response packets.
+ * @brief Fixed payload byte lengths and capacity bounds for packets.
  */
 enum {
+  PAYLOAD_LEN_MAX = 16,       /**< Maximum allowable payload length in bytes. */
   PAYLOAD_LEN_MOTION = 1,     /**< Payload length for CMD_ID_MOTION (1 byte). */
   PAYLOAD_LEN_SET_SPEED = 1,  /**< Payload length for CMD_ID_SET_SPEED (1 byte). */
   PAYLOAD_LEN_STOP = 0,       /**< Payload length for CMD_ID_STOP (0 bytes). */
@@ -118,20 +126,43 @@ enum {
 };
 
 /**
+ * @brief Byte offsets within RESP_ID_NACK payload (Length: 2 bytes).
+ */
+typedef enum {
+  NACK_PAYLOAD_OFFSET_CMD_ID = 0,  /**< Message ID of rejected command. */
+  NACK_PAYLOAD_OFFSET_ERR_CODE = 1 /**< Error code describing reason for rejection. */
+} protocol_nack_payload_offset_t;
+
+/**
+ * @brief Byte offsets within RESP_ID_STATUS (7 bytes) and RESP_ID_DIAG (9 bytes) payloads.
+ */
+typedef enum {
+  STATUS_PAYLOAD_OFFSET_MODE = 0,         /**< Operating mode (NORMAL, DEGRADED, PANIC). */
+  STATUS_PAYLOAD_OFFSET_LAST_ERR = 1,     /**< Last error code. */
+  STATUS_PAYLOAD_OFFSET_COUNT_HI = 2,     /**< Total error count high byte (Big-Endian). */
+  STATUS_PAYLOAD_OFFSET_COUNT_LO = 3,     /**< Total error count low byte (Big-Endian). */
+  STATUS_PAYLOAD_OFFSET_MOTION_STATE = 4, /**< Chassis motion state (IDLE, MOVING, FAILSAFE). */
+  STATUS_PAYLOAD_OFFSET_MOTION_CMD = 5,   /**< Current active motion command. */
+  STATUS_PAYLOAD_OFFSET_SPEED = 6,        /**< Current target/ramped speed setpoint. */
+  DIAG_PAYLOAD_OFFSET_FAILSAFE_FLAGS = 7, /**< Failsafe watchdog status bitmask. */
+  DIAG_PAYLOAD_OFFSET_MOTION_LOCK = 8     /**< Motion lock status (MOTION_LOCK_OFF/ON). */
+} protocol_telemetry_payload_offset_t;
+
+/**
  * @brief Bitmask flags for communication failsafe watchdog status reporting.
  */
-enum {
+typedef enum {
   FAILSAFE_FLAG_ENABLED = 0x01,  /**< Watchdog timer is actively enabled and arming safety. */
   FAILSAFE_FLAG_TRIGGERED = 0x02 /**< Watchdog timeout has expired, triggering safe stop. */
-};
+} protocol_failsafe_flag_t;
 
 /**
  * @brief Kinematic motion lock operational states.
  */
-enum {
+typedef enum {
   MOTION_LOCK_OFF = 0x00, /**< Kinematic actuator commands are permitted and unlocked. */
   MOTION_LOCK_ON = 0x01   /**< Kinematic actuator commands are locked due to safety/fault. */
-};
+} protocol_motion_lock_t;
 
 #ifdef __cplusplus
 }

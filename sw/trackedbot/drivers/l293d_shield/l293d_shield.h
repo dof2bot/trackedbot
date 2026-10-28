@@ -2,12 +2,12 @@
  * @file l293d_shield.h
  * Copyright (C) 2026 Vladimir Roncevic <elektron.ronca@gmail.com>
  *
- * sr14_bot is free software: you can redistribute it and/or modify it
+ * trackedbot is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * sr14_bot is distributed in the hope that it will be useful, but
+ * trackedbot is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
@@ -38,13 +38,15 @@ typedef enum {
 } l293d_channel_t;
 
 /**
- * @brief Initialize Timer0 for Fast PWM and reset motor shield hardware.
+ * @brief Initialize Timer0 and Timer2 for Fast PWM and reset motor shield hardware.
  *
- * Configures PD6 (OC0A) and PD5 (OC0B) as outputs, sets TCCR0A/TCCR0B
- * registers for non-inverting Fast PWM at ~976 Hz, sets initial duty
- * cycles to 0%, and resets all direction bits via the 74HC595 shift register.
+ * Configures PD6 (OC0A, M3 / Left Track) and PB3 (OC2A, M1 / Right Track) as outputs,
+ * sets TCCR0A/TCCR0B and TCCR2A/TCCR2B registers for non-inverting Fast PWM at ~976 Hz,
+ * sets initial duty cycles to 0%, and resets all direction bits via the 74HC595 shift register.
  * With a frequency of ~1 kHz, the L293D H-bridge has minimal switching losses,
- * and the motors provide strong torque and smooth rotation.
+ * and the motors provide strong torque and smooth rotation. Each motor operates on its
+ * own dedicated L293D driver IC (M3 on IC2, M1 on IC1) to maximize current delivery and
+ * distribute heat dissipation evenly.
  *
  * @return MOTION_STATUS_OK on success.
  */
@@ -53,7 +55,7 @@ motion_status_t l293d_init(void);
 /**
  * @brief Set the PWM duty cycle for an active motor channel.
  *
- * Updates OCR0A (Channel 3 / Left Track) or OCR0B (Channel 4 / Right Track).
+ * Updates OCR0A (Channel 3 / Left Track) or OCR2A (Channel 1 / Right Track).
  *
  * @param ch Motor channel identifier.
  * @param speed 8-bit duty cycle (0 = 0% OFF, 128 = 50%, 255 = 100% full speed).

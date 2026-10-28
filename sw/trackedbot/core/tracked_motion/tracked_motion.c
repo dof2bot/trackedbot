@@ -2,12 +2,12 @@
  * @file tracked_motion.c
  * Copyright (C) 2026 Vladimir Roncevic <elektron.ronca@gmail.com>
  *
- * sr14_bot is free software: you can redistribute it and/or modify it
+ * trackedbot is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * sr14_bot is distributed in the hope that it will be useful, but
+ * trackedbot is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
@@ -65,6 +65,56 @@ enum {
 };
 
 /**
+ * @brief Differential skid-steering kinematics lookup entry.
+ */
+typedef struct {
+  motor_dir_t left_dir;     /**< Direction command for left track H-bridge. */
+  motor_dir_t right_dir;    /**< Direction command for right track H-bridge. */
+  bool        left_active;  /**< True if left track driven with ramped PWM, false if stopped. */
+  bool        right_active; /**< True if right track driven with ramped PWM, false if stopped. */
+} motion_kinematics_entry_t;
+
+/**
+ * @brief Differential skid-steering lookup table stored in Flash memory (PROGMEM).
+ *
+ * Implements the dual-track kinematics truth table indexed directly by motion_cmd_t.
+ */
+static const motion_kinematics_entry_t S_KINEMATICS_TABLE[] PROGMEM = {
+  /* MOTION_STOP */
+  {MOTOR_DIR_STOP, MOTOR_DIR_STOP, false, false},
+  /* MOTION_FORWARD */
+  {MOTOR_DIR_FORWARD, MOTOR_DIR_FORWARD, true, true},
+  /* MOTION_BACKWARD */
+  {MOTOR_DIR_BACKWARD, MOTOR_DIR_BACKWARD, true, true},
+  /* MOTION_TURN_LEFT */
+  {MOTOR_DIR_STOP, MOTOR_DIR_FORWARD, false, true},
+  /* MOTION_TURN_RIGHT */
+  {MOTOR_DIR_FORWARD, MOTOR_DIR_STOP, true, false},
+  /* MOTION_SPIN_LEFT */
+  {MOTOR_DIR_BACKWARD, MOTOR_DIR_FORWARD, true, true},
+  /* MOTION_SPIN_RIGHT */
+  {MOTOR_DIR_FORWARD, MOTOR_DIR_BACKWARD, true, true}
+};
+
+/** Motion command string lookup table stored in Flash memory (PROGMEM). */
+static const char S_MOTION_CMD_STRINGS[][11] PROGMEM = {
+    "STOP",
+    "FORWARD",
+    "BACKWARD",
+    "TURN_LEFT",
+    "TURN_RIGHT",
+    "SPIN_LEFT",
+    "SPIN_RIGHT",
+};
+
+/** Motion state string lookup table stored in Flash memory (PROGMEM). */
+static const char S_MOTION_STATE_STRINGS[][9] PROGMEM = {
+    "IDLE",
+    "MOVING",
+    "FAILSAFE",
+};
+
+/**
  * @brief Clamp input speed within [TRACKED_MOTION_SPEED_MIN, TRACKED_MOTION_SPEED_MAX].
  *
  * @param speed Raw speed value.
@@ -74,11 +124,28 @@ static uint8_t clamp_speed(uint8_t speed) {
   if (speed < (uint8_t)TRACKED_MOTION_SPEED_MIN) {
     return (uint8_t)TRACKED_MOTION_SPEED_MIN;
   }
+
   if (speed > (uint8_t)TRACKED_MOTION_SPEED_MAX) {
     return (uint8_t)TRACKED_MOTION_SPEED_MAX;
   }
 
   return speed;
+}
+
+/**
+ * @brief Fetch kinematics configuration entry for a given motion command from Flash.
+ *
+ * @param cmd Motion command enum.
+ * @return motion_kinematics_entry_t Kinematics entry parameters.
+ */
+static inline motion_kinematics_entry_t get_kinematics(motion_cmd_t cmd) {
+  motion_kinematics_entry_t entry;
+  entry.left_dir = (motor_dir_t)pgm_read_byte(&S_KINEMATICS_TABLE[cmd].left_dir);
+  entry.right_dir = (motor_dir_t)pgm_read_byte(&S_KINEMATICS_TABLE[cmd].right_dir);
+  entry.left_active = (bool)pgm_read_byte(&S_KINEMATICS_TABLE[cmd].left_active);
+  entry.right_active = (bool)pgm_read_byte(&S_KINEMATICS_TABLE[cmd].right_active);
+
+  return entry;
 }
 
 /**
@@ -91,47 +158,18 @@ static uint8_t clamp_speed(uint8_t speed) {
  * @return motion_status_t MOTION_STATUS_OK on success, error code on driver failure.
  */
 static motion_status_t tracked_motion_apply_speeds(tracked_motion_t *tm) {
-  if (tm == (void *)0) {
+  if (tm == (void *)0 || (uint8_t)tm->current_motion > (uint8_t)MOTION_SPIN_RIGHT) {
     return MOTION_STATUS_INVALID_ARG;
   }
 
   uint8_t cur_speed = slew_limiter_get_current(&tm->speed_limiter);
-  motion_status_t status = MOTION_STATUS_OK;
+  motion_kinematics_entry_t k = get_kinematics(tm->current_motion);
+  uint8_t left_speed = k.left_active ? cur_speed : 0;
+  uint8_t right_speed = k.right_active ? cur_speed : 0;
+  motion_status_t status = motor_set_speed(&tm->left_motor, left_speed);
 
-  switch (tm->current_motion) {
-  case MOTION_FORWARD:
-  case MOTION_BACKWARD:
-  case MOTION_SPIN_LEFT:
-  case MOTION_SPIN_RIGHT:
-    status = motor_set_speed(&tm->left_motor, cur_speed);
-    if (status == MOTION_STATUS_OK) {
-      status = motor_set_speed(&tm->right_motor, cur_speed);
-    }
-    break;
-
-  case MOTION_TURN_LEFT:
-    /* Skid steering: left track stop, right track at current ramped speed */
-    status = motor_set_speed(&tm->left_motor, 0);
-    if (status == MOTION_STATUS_OK) {
-      status = motor_set_speed(&tm->right_motor, cur_speed);
-    }
-    break;
-
-  case MOTION_TURN_RIGHT:
-    /* Skid steering: left track at current ramped speed, right track stop */
-    status = motor_set_speed(&tm->left_motor, cur_speed);
-    if (status == MOTION_STATUS_OK) {
-      status = motor_set_speed(&tm->right_motor, 0);
-    }
-    break;
-
-  case MOTION_STOP:
-  default:
-    status = motor_set_speed(&tm->left_motor, 0);
-    if (status == MOTION_STATUS_OK) {
-      status = motor_set_speed(&tm->right_motor, 0);
-    }
-    break;
+  if (status == MOTION_STATUS_OK) {
+    status = motor_set_speed(&tm->right_motor, right_speed);
   }
 
   return status;
@@ -177,71 +215,23 @@ tracked_motion_init(tracked_motion_t *tm, motor_handle_t left, motor_handle_t ri
  * @return motion_status_t MOTION_STATUS_OK on success, MOTION_STATUS_INVALID_ARG on invalid arg or cmd.
  */
 motion_status_t tracked_motion_set_command(tracked_motion_t *tm, motion_cmd_t cmd) {
-  if (tm == (void *)0) {
+  if (tm == (void *)0 || (uint8_t)cmd > (uint8_t)MOTION_SPIN_RIGHT) {
     return MOTION_STATUS_INVALID_ARG;
   }
+
+  if (cmd == MOTION_STOP) {
+    return tracked_motion_stop(tm);
+  }
+
+  motion_kinematics_entry_t k = get_kinematics(cmd);
 
   tm->current_motion = cmd;
+  motor_set_direction(&tm->left_motor, k.left_dir);
+  motor_set_direction(&tm->right_motor, k.right_dir);
+  (void)slew_limiter_set_target(&tm->speed_limiter, tm->target_speed);
+  tm->state = MOTION_STATE_MOVING;
 
-  switch (cmd) {
-  case MOTION_FORWARD:
-    motor_set_direction(&tm->left_motor, MOTOR_DIR_FORWARD);
-    motor_set_direction(&tm->right_motor, MOTOR_DIR_FORWARD);
-    (void)slew_limiter_set_target(&tm->speed_limiter, tm->target_speed);
-    tm->state = MOTION_STATE_MOVING;
-    tracked_motion_apply_speeds(tm);
-    return MOTION_STATUS_OK;
-
-  case MOTION_BACKWARD:
-    motor_set_direction(&tm->left_motor, MOTOR_DIR_BACKWARD);
-    motor_set_direction(&tm->right_motor, MOTOR_DIR_BACKWARD);
-    (void)slew_limiter_set_target(&tm->speed_limiter, tm->target_speed);
-    tm->state = MOTION_STATE_MOVING;
-    tracked_motion_apply_speeds(tm);
-    return MOTION_STATUS_OK;
-
-  case MOTION_TURN_LEFT:
-    /* Skid steering: left track stop, right track forward */
-    motor_set_direction(&tm->left_motor, MOTOR_DIR_STOP);
-    motor_set_direction(&tm->right_motor, MOTOR_DIR_FORWARD);
-    (void)slew_limiter_set_target(&tm->speed_limiter, tm->target_speed);
-    tm->state = MOTION_STATE_MOVING;
-    tracked_motion_apply_speeds(tm);
-    return MOTION_STATUS_OK;
-
-  case MOTION_TURN_RIGHT:
-    /* Skid steering: left track forward, right track stop */
-    motor_set_direction(&tm->left_motor, MOTOR_DIR_FORWARD);
-    motor_set_direction(&tm->right_motor, MOTOR_DIR_STOP);
-    (void)slew_limiter_set_target(&tm->speed_limiter, tm->target_speed);
-    tm->state = MOTION_STATE_MOVING;
-    tracked_motion_apply_speeds(tm);
-    return MOTION_STATUS_OK;
-
-  case MOTION_SPIN_LEFT:
-    /* Turn in place: left backward, right forward */
-    motor_set_direction(&tm->left_motor, MOTOR_DIR_BACKWARD);
-    motor_set_direction(&tm->right_motor, MOTOR_DIR_FORWARD);
-    (void)slew_limiter_set_target(&tm->speed_limiter, tm->target_speed);
-    tm->state = MOTION_STATE_MOVING;
-    tracked_motion_apply_speeds(tm);
-    return MOTION_STATUS_OK;
-
-  case MOTION_SPIN_RIGHT:
-    /* Turn in place: left forward, right backward */
-    motor_set_direction(&tm->left_motor, MOTOR_DIR_FORWARD);
-    motor_set_direction(&tm->right_motor, MOTOR_DIR_BACKWARD);
-    (void)slew_limiter_set_target(&tm->speed_limiter, tm->target_speed);
-    tm->state = MOTION_STATE_MOVING;
-    tracked_motion_apply_speeds(tm);
-    return MOTION_STATUS_OK;
-
-  case MOTION_STOP:
-    return tracked_motion_stop(tm);
-
-  default:
-    return MOTION_STATUS_INVALID_ARG;
-  }
+  return tracked_motion_apply_speeds(tm);
 }
 
 /**
@@ -282,6 +272,7 @@ motion_status_t tracked_motion_update(tracked_motion_t *tm, uint16_t delta_ms) {
   if (tm == (void *)0) {
     return MOTION_STATUS_INVALID_ARG;
   }
+
   (void)delta_ms;
 
   if (tm->state == MOTION_STATE_MOVING) {
@@ -362,24 +353,6 @@ motion_cmd_t tracked_motion_get_command(const tracked_motion_t *tm) {
 
   return tm->current_motion;
 }
-
-/** Motion command string lookup table stored in Flash memory (PROGMEM). */
-static const char S_MOTION_CMD_STRINGS[][11] PROGMEM = {
-    "STOP",
-    "FORWARD",
-    "BACKWARD",
-    "TURN_LEFT",
-    "TURN_RIGHT",
-    "SPIN_LEFT",
-    "SPIN_RIGHT",
-};
-
-/** Motion state string lookup table stored in Flash memory (PROGMEM). */
-static const char S_MOTION_STATE_STRINGS[][9] PROGMEM = {
-    "IDLE",
-    "MOVING",
-    "FAILSAFE",
-};
 
 /**
  * @brief Convert motion command enum to human-readable ASCII string (stored in Flash).

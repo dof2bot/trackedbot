@@ -2,12 +2,12 @@
  * @file slew_limiter.c
  * Copyright (C) 2026 Vladimir Roncevic <elektron.ronca@gmail.com>
  *
- * sr14_bot is free software: you can redistribute it and/or modify it
+ * trackedbot is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * sr14_bot is distributed in the hope that it will be useful, but
+ * trackedbot is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
@@ -108,6 +108,7 @@ motion_status_t slew_limiter_update(slew_limiter_t *limiter) {
 
   if (limiter->current_val < limiter->target_val) {
     uint8_t diff = (uint8_t)(limiter->target_val - limiter->current_val);
+
     if (diff <= limiter->rate_per_step) {
       limiter->current_val = limiter->target_val;
     } else {
@@ -115,6 +116,7 @@ motion_status_t slew_limiter_update(slew_limiter_t *limiter) {
     }
   } else if (limiter->current_val > limiter->target_val) {
     uint8_t diff = (uint8_t)(limiter->current_val - limiter->target_val);
+
     if (diff <= limiter->rate_per_step) {
       limiter->current_val = limiter->target_val;
     } else {

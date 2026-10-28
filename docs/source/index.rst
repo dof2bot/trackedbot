@@ -26,7 +26,7 @@ An autonomous tracked mobile robot platform built on the all-metal T101 aluminum
    :target: https://github.com/dof2bot/trackedbot/graphs/contributors
 
 .. |Documentation Status| image:: https://readthedocs.org/projects/trackedbot/badge/?version=latest
-   :target: https://trackedbot.readthedocs.io/projects/trackedbot/en/latest/?badge=latest
+   :target: https://trackedbot.readthedocs.io/en/latest/?badge=latest
 
 Project Structure
 -----------------
@@ -60,4 +60,4 @@ Copyright and Licence
 .. |License: Apache 2.0| image:: https://img.shields.io/badge/License-Apache%202.0-blue.svg
    :target: https://opensource.org/licenses/Apache-2.0
 
-Copyright (C) 2020 by `dof2bot.github.io/trackedbot <https://dof2bot.github.io/trackedbot>`_
+Copyright (C) 2020 - 2026 by `dof2bot.github.io/trackedbot <https://dof2bot.github.io/trackedbot>`_

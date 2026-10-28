@@ -23,8 +23,8 @@ Hardware Images:
 3. [Power Supply Configuration & PWR Jumper](#-power-supply-configuration--pwr-jumper)
 4. [Complete Arduino Pin Allocation Matrix](#-complete-arduino-pin-allocation-matrix)
 5. [74HC595 Shift Register Mapping & Protocol](#-74hc595-shift-register-mapping--protocol)
-6. [Speed Control via Hardware PWM (Timer0)](#-speed-control-via-hardware-pwm-timer0)
-7. [Tracked Bot Motor Mapping (M3 & M4)](#-tracked-bot-motor-mapping-m3--m4)
+6. [Speed Control via Hardware PWM (Timer0 & Timer2)](#-speed-control-via-hardware-pwm-timer0--timer2)
+7. [Tracked Bot Motor Mapping (M3 & M1)](#-tracked-bot-motor-mapping-m3--m1)
 8. [Servo and Stepper Motor Interfaces](#-servo-and-stepper-motor-interfaces)
 9. [Hardware Protection, Noise Filtering & Troubleshooting](#-hardware-protection-noise-filtering--troubleshooting)
 
@@ -36,8 +36,9 @@ The L293D Motor Driver Shield stacks directly onto an Arduino Uno R3 form-factor
 
 ![L293D Motor Driver Shield](images/motor_driver_shield.png)
 
-1. **IC1 (L293D):** Quadruple high-current half-H driver. Drives **Motor 1** (M1) and **Motor 2** (M2).
-2. **IC2 (L293D):** Quadruple high-current half-H driver. Drives **Motor 3** (M3) and **Motor 4** (M4) (dedicated to the left and right tracks on `tracked_bot`).
+1. **IC1 (L293D):** Quadruple high-current half-H driver. Drives **Motor 1** (M1) and **Motor 2** (M2). M1 is dedicated to the **Right Track** on `tracked_bot`.
+2. **IC2 (L293D):** Quadruple high-current half-H driver. Drives **Motor 3** (M3) and **Motor 4** (M4). M3 is dedicated to the **Left Track** on `tracked_bot`.
+   *By splitting Left and Right tracks onto separate physical L293D ICs (M3 on IC2, M1 on IC1), each motor utilizes an independent thermal package and power stage, eliminating thermal choking and maximizing available motor torque.*
 3. **IC3 (SN74HC595N):** 8-bit serial-in, parallel-out shift register with output latches. Expands 4 microcontroller control lines into 8 direction signals feeding the H-bridges of IC1 and IC2.
 4. **Pull-Down Resistor Network:** A 10 kΩ resistor array grounds the L293D logic inputs during microcontroller power-up and reset cycles, preventing motors from running unpredictably.
 5. **Reset Button:** Duplicates the Arduino Uno reset switch to the top of the shield for convenient physical access.
@@ -90,13 +91,13 @@ The shield occupies digital pins **D3 through D12**. Digital pins **D0, D1, D2, 
 | **D2** | `PD2` | *Unused by shield* | None | **FREE GPIO** – External Interrupt 0 (`INT0`), sensors, encoders |
 | **D3** | `PD3` | `PWM2B` (OC2B) | Motor 2 Speed / Enable (IC1 3,4EN) | Reserved (unused on tracked platform) |
 | **D4** | `PD4` | `DIR_CLK` | 74HC595 Shift Clock | **74HC595 Clock Line** |
-| **D5** | `PD5` | `PWM0B` (OC0B) | Motor 4 Speed / Enable (IC2 3,4EN) | **Right Track PWM Speed** (Timer0 Fast PWM) |
+| **D5** | `PD5` | `PWM0B` (OC0B) | Motor 4 Speed / Enable (IC2 3,4EN) | Reserved (formerly Right Track) |
 | **D6** | `PD6` | `PWM0A` (OC0A) | Motor 3 Speed / Enable (IC2 1,2EN) | **Left Track PWM Speed** (Timer0 Fast PWM) |
 | **D7** | `PD7` | `DIR_EN` | 74HC595 Output Enable (active LOW) | **74HC595 Output Enable** (`~OE`) |
 | **D8** | `PB0` | `DIR_SER` | 74HC595 Serial Data Input | **74HC595 Serial Data** (`SER`) |
 | **D9** | `PB1` | `PWM1A` (OC1A) | Servo 2 PWM Control (`SERVO_2`) | Reserved / Free for pan-tilt servo |
 | **D10** | `PB2` | `PWM1B` (OC1B) | Servo 1 PWM Control (`SER1`) | Reserved / Free for pan-tilt servo |
-| **D11** | `PB3` | `PWM2A` (OC2A) | Motor 1 Speed / Enable (IC1 1,2EN) | Reserved (unused on tracked platform) |
+| **D11** | `PB3` | `PWM2A` (OC2A) | Motor 1 Speed / Enable (IC1 1,2EN) | **Right Track PWM Speed** (Timer2 Fast PWM) |
 | **D12** | `PB4` | `DIR_LATCH` | 74HC595 Storage Latch Clock | **74HC595 Latch Line** (`RCLK`) |
 | **D13** | `PB5` | *Unused by shield* | Arduino Uno onboard LED | **FREE GPIO** / SPI SCK / Built-in LED |
 | **A0** | `PC0` | *Analog Breakout* | None | **Battery Voltage Sense** (resistive voltage divider) |
@@ -127,13 +128,13 @@ The 74HC595 shift register deserializes an 8-bit word clocked in from the microc
 
 | Shift Register Bit | Constant Identifier | L293D IC & Pin | Target Channel | Function |
 | :---: | :--- | :--- | :---: | :--- |
-| **Bit 0** | `SHIFT_BIT_MOTOR4_A` | IC2 Pin 10 (`3A`) | **Motor 4** | Direction A (Right Track) |
+| **Bit 0** | `SHIFT_BIT_MOTOR4_A` | IC2 Pin 10 (`3A`) | **Motor 4** | Direction A |
 | **Bit 1** | `SHIFT_BIT_MOTOR2_A` | IC1 Pin 2 (`1A`) | **Motor 2** | Direction A |
-| **Bit 2** | `SHIFT_BIT_MOTOR1_A` | IC1 Pin 10 (`3A`) | **Motor 1** | Direction A |
-| **Bit 3** | `SHIFT_BIT_MOTOR1_B` | IC1 Pin 15 (`4A`) | **Motor 1** | Direction B |
+| **Bit 2** | `SHIFT_BIT_MOTOR1_A` | IC1 Pin 10 (`3A`) | **Motor 1** | Direction A (Right Track) |
+| **Bit 3** | `SHIFT_BIT_MOTOR1_B` | IC1 Pin 15 (`4A`) | **Motor 1** | Direction B (Right Track) |
 | **Bit 4** | `SHIFT_BIT_MOTOR2_B` | IC1 Pin 7 (`2A`) | **Motor 2** | Direction B |
 | **Bit 5** | `SHIFT_BIT_MOTOR3_A` | IC2 Pin 2 (`1A`) | **Motor 3** | Direction A (Left Track) |
-| **Bit 6** | `SHIFT_BIT_MOTOR4_B` | IC2 Pin 15 (`4A`) | **Motor 4** | Direction B (Right Track) |
+| **Bit 6** | `SHIFT_BIT_MOTOR4_B` | IC2 Pin 15 (`4A`) | **Motor 4** | Direction B |
 | **Bit 7** | `SHIFT_BIT_MOTOR3_B` | IC2 Pin 7 (`2A`) | **Motor 3** | Direction B (Left Track) |
 
 ### Shift Register Control Protocol:
@@ -161,34 +162,37 @@ See implementation in [`shift_reg.c`](../sw/trackedbot/drivers/shift_reg/shift_r
 
 ---
 
-## ⏱️ Speed Control via Hardware PWM (Timer0)
+## ⏱️ Speed Control via Hardware PWM (Timer0 & Timer2)
 
-Speed regulation is performed by driving the L293D enable inputs (`1,2EN` and `3,4EN`) with hardware Pulse Width Modulation (PWM):
+Speed regulation is performed by driving the L293D enable inputs (`1,2EN`) with hardware Pulse Width Modulation (PWM):
 
 ```
-       ATmega328P                         L293D (IC2)
+       ATmega328P                         L293D (IC2 - Left Track)
      +-------------+                    +---------------+
      | PD6 (OC0A)  |---[PWM Speed M3]-->| 1,2EN  (Pin 1)|
      | 74HC595 Q5  |---[Dir A (M3_A)]-->| 1A     (Pin 2)|---> M3 Output (Left Track)
-     | 74HC595 Q7  |---[Dir B (M3_B)]-->| 2A     (Pin 7)|---> M3 Output
-     |             |                    |               |
-     | PD5 (OC0B)  |---[PWM Speed M4]-->| 3,4EN  (Pin 9)|
-     | 74HC595 Q0  |---[Dir A (M4_A)]-->| 3A    (Pin 10)|---> M4 Output (Right Track)
-     | 74HC595 Q6  |---[Dir B (M4_B)]-->| 4A    (Pin 15)|---> M4 Output
+     | 74HC595 Q7  |---[Dir B (M3_B)]-->| 2A     (Pin 7)|
+     |             |                    +---------------+
+     |             |
+     |             |                      L293D (IC1 - Right Track)
+     |             |                    +---------------+
+     | PB3 (OC2A)  |---[PWM Speed M1]-->| 1,2EN  (Pin 1)|
+     | 74HC595 Q2  |---[Dir A (M1_A)]-->| 1A/3A         |---> M1 Output (Right Track)
+     | 74HC595 Q3  |---[Dir B (M1_B)]-->| 2A/4A         |
      +-------------+                    +---------------+
 ```
 
 ```
 Fast PWM Waveform Timing Diagram:
 
-TCNT0 (Counter)
+TCNT0 / TCNT2 (Counters)
     ^
 255 + - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - TOP
     |            /|            /|            /|            /|
-OCR | - - - - - / | - - - - - / | - - - - - / | - - - - - / | - - - - - OCR0A/B
+OCR | - - - - - / | - - - - - / | - - - - - / | - - - - - / | - - - - - OCR0A / OCR2A
     |          /  |          /  |          /  |          /  |
   0 +---------+---+---------+---+---------+---+---------+---+---------> Time
-OC0x Pin (PD6 / PD5)
+Output Pins: PD6 (OC0A, M3 Left) / PB3 (OC2A, M1 Right)
   1 |=========|   |=========|   |=========|   |=========|   |
   0 +---------+---+---------+---+---------+---+---------+---+--------->
     |<--Duty->|   |<--Duty->|   |<--Duty->|   |<--Duty->|   |
@@ -196,34 +200,36 @@ OC0x Pin (PD6 / PD5)
 ```
 
 ### Fast PWM Configuration on ATmega328P:
-- **Timer:** `Timer0` (8-bit counter, TOP = 0xFF / 255).
-- **PWM Mode:** Fast PWM Mode 3 (`WGM01 = 1`, `WGM00 = 1`).
-- **Output Channels:** Non-inverting PWM on `OC0A` (`PD6`, pin D6) and `OC0B` (`PD5`, pin D5).
-- **Clock Prescaler:** $N = 64$ (`CS01 = 1`, `CS00 = 1`):
-  $$f_{PWM} = \frac{f_{CPU}}{N \times 256} = \frac{16\,000\,000\,\text{Hz}}{64 \times 256} \approx 976.56\,\text{Hz}$$
+- **Timers:**
+  - `Timer0`: 8-bit counter for **Motor 3** (Left Track) on `OC0A` (`PD6`, pin D6).
+  - `Timer2`: 8-bit counter for **Motor 1** (Right Track) on `OC2A` (`PB3`, pin D11).
+- **PWM Mode:** Fast PWM Mode 3 (`WGM = 3`, 8-bit counter, TOP = 0xFF / 255).
+- **Clock Prescalers ($N = 64$):**
+  - Timer0: `CS01 = 1, CS00 = 1` -> $f_{PWM} = \frac{16\,000\,000\,\text{Hz}}{64 \times 256} \approx 976.56\,\text{Hz}$
+  - Timer2: `CS22 = 1` -> $f_{PWM} = \frac{16\,000\,000\,\text{Hz}}{64 \times 256} \approx 976.56\,\text{Hz}$
 - **Duty Cycle Registers:**
   - `OCR0A`: Duty cycle for **Motor 3** (Left Track), range `0` (0% OFF) to `255` (100% full speed).
-  - `OCR0B`: Duty cycle for **Motor 4** (Right Track), range `0` (0% OFF) to `255` (100% full speed).
+  - `OCR2A`: Duty cycle for **Motor 1** (Right Track), range `0` (0% OFF) to `255` (100% full speed).
 
 A frequency of ~976 Hz balances low acoustic motor whine with minimal switching losses in the bipolar L293D output transistors.
 
 ---
 
-## 🏎️ Tracked Bot Motor Mapping (M3 & M4)
+## 🏎️ Tracked Bot Motor Mapping (M3 & M1)
 
-The tracked platform utilizes **Motor 3** for the left track drive and **Motor 4** for the right track drive:
+The tracked platform utilizes **Motor 3** on IC2 for the left track drive and **Motor 1** on IC1 for the right track drive:
 
 ### H-Bridge Control Truth Table:
 
-| Channel | Desired Motion | PWM Duty (`OCR0x`) | Dir A (`74HC595`) | Dir B (`74HC595`) | Output Terminals | Resulting State |
+| Channel | Desired Motion | PWM Duty (`OCRxx`) | Dir A (`74HC595`) | Dir B (`74HC595`) | Output Terminals | Resulting State |
 | :--- | :--- | :---: | :---: | :---: | :---: | :--- |
-| **M3 (Left Track)** | **Forward** | `1 .. 255` | `MOTOR3_A (bit 5) = 1` | `MOTOR3_B (bit 7) = 0` | Out 1 = HIGH, Out 2 = LOW | Track drives forward |
+| **M3 (Left Track, IC2)** | **Forward** | `1 .. 255` | `MOTOR3_A (bit 5) = 1` | `MOTOR3_B (bit 7) = 0` | Out 1 = HIGH, Out 2 = LOW | Track drives forward |
 | | **Reverse** | `1 .. 255` | `MOTOR3_A (bit 5) = 0` | `MOTOR3_B (bit 7) = 1` | Out 1 = LOW, Out 2 = HIGH | Track drives reverse |
 | | **Dynamic Brake** | `1 .. 255` | `MOTOR3_A (bit 5) = 0` | `MOTOR3_B (bit 7) = 0` | Out 1 = LOW, Out 2 = LOW | Active dynamic braking |
 | | **Coast / Off** | `0` | Don't care (`X`) | Don't care (`X`) | High-Z floating | Track coasts freely |
-| **M4 (Right Track)** | **Forward** | `1 .. 255` | `MOTOR4_A (bit 0) = 1` | `MOTOR4_B (bit 6) = 0` | Out 3 = HIGH, Out 4 = LOW | Track drives forward |
-| | **Reverse** | `1 .. 255` | `MOTOR4_A (bit 0) = 0` | `MOTOR4_B (bit 6) = 1` | Out 3 = LOW, Out 4 = HIGH | Track drives reverse |
-| | **Dynamic Brake** | `1 .. 255` | `MOTOR4_A (bit 0) = 0` | `MOTOR4_B (bit 6) = 0` | Out 3 = LOW, Out 4 = LOW | Active dynamic braking |
+| **M1 (Right Track, IC1)** | **Forward** | `1 .. 255` | `MOTOR1_A (bit 2) = 1` | `MOTOR1_B (bit 3) = 0` | Out 1 = HIGH, Out 2 = LOW | Track drives forward |
+| | **Reverse** | `1 .. 255` | `MOTOR1_A (bit 2) = 0` | `MOTOR1_B (bit 3) = 1` | Out 1 = LOW, Out 2 = HIGH | Track drives reverse |
+| | **Dynamic Brake** | `1 .. 255` | `MOTOR1_A (bit 2) = 0` | `MOTOR1_B (bit 3) = 0` | Out 1 = LOW, Out 2 = LOW | Active dynamic braking |
 | | **Coast / Off** | `0` | Don't care (`X`) | Don't care (`X`) | High-Z floating | Track coasts freely |
 
 Firmware driver references:

@@ -2,12 +2,12 @@
  * @file uart_avr.c
  * Copyright (C) 2026 Vladimir Roncevic <elektron.ronca@gmail.com>
  *
- * sr14_bot is free software: you can redistribute it and/or modify it
+ * trackedbot is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * sr14_bot is distributed in the hope that it will be useful, but
+ * trackedbot is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
@@ -48,9 +48,9 @@
  *                                                |
  *                                        (Pushes byte into)
  *                                                v
- *  RX Pin (PD0) ---> [ UDR0 Shift Reg ] ---> [ s_rx_ring (64B) ] ---> uart_avr_read()
+ *  RX Pin (PD0) ---> [ UDR0 Shift Reg ] ---> [ s_rx_ring (32B) ] ---> uart_avr_read()
  *
- *  TX Pin (PD1) <--- [ UDR0 Shift Reg ] <--- [ s_tx_ring (64B) ] <--- uart_avr_write()
+ *  TX Pin (PD1) <--- [ UDR0 Shift Reg ] <--- [ s_tx_ring (32B) ] <--- uart_avr_write()
  *                                                ^
  *                                        (Pops byte from)
  *                                                |

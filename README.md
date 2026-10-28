@@ -24,7 +24,7 @@ The **trackedbot** project is organized into three decoupled layers:
 
 ### DOCS
 
-[![Documentation Status](https://readthedocs.org/projects/trackedbot/badge/?version=latest)](https://trackedbot.readthedocs.io/projects/trackedbot/en/latest/?badge=latest)
+[![Documentation Status](https://readthedocs.org/projects/trackedbot/badge/?version=latest)](https://trackedbot.readthedocs.io/en/latest/?badge=latest)
 
 More documentation and info at:
 * **Mechanical Architecture:** [body/README.md](body/README.md)
