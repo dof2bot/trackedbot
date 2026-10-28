@@ -2,12 +2,12 @@
  * @file l293d_shield.c
  * Copyright (C) 2026 Vladimir Roncevic <elektron.ronca@gmail.com>
  *
- * sr14_bot is free software: you can redistribute it and/or modify it
+ * trackedbot is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * sr14_bot is distributed in the hope that it will be useful, but
+ * trackedbot is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
@@ -20,23 +20,31 @@
  * Controls DC motors via two L293D quadruple half-H drivers and a 74HC595
  * shift register for direction selection.
  *
- * Timer0 Fast PWM Configuration (Speed Control):
- *  - Channels M3 & M4 use Timer0 on ATmega328P.
- *  - Fast PWM Mode 3: 8-bit counter, TOP = 0xFF (255).
- *  - Non-inverting mode on OC0A (M3) and OC0B (M4).
- *  - Clock Prescaler = 64:
- *      f_PWM = f_CPU / (N * 256) = 16,000,000 / (64 * 256) ~ 976.56 Hz
+ * Each DC track motor is allocated to a separate physical L293D IC:
+ *  - IC2: Drives Motor 3 (M3) dedicated to the Left Track.
+ *  - IC1: Drives Motor 1 (M1) dedicated to the Right Track.
+ * This 1-chip-per-motor architecture eliminates thermal choking, avoids
+ * current sharing on a single chip, and provides maximum torque and power.
+ *
+ * Fast PWM Hardware Speed Control (ATmega328P):
+ *  - Left Track (M3): Timer0 Fast PWM on OC0A (PD6 / Arduino Pin 6).
+ *  - Right Track (M1): Timer2 Fast PWM on OC2A (PB3 / Arduino Pin 11).
+ *  - Both Timers operate in Fast PWM Mode 3: 8-bit counter, TOP = 0xFF (255).
+ *  - Clock Prescalers:
+ *      Timer0 (N = 64): CS01=1, CS00=1 -> f_PWM = 16 MHz / (64 * 256) ~ 976.56 Hz
+ *      Timer2 (N = 64): CS22=1         -> f_PWM = 16 MHz / (64 * 256) ~ 976.56 Hz
+ *  - Both channels run at the exact same ~976 Hz frequency and 8-bit resolution.
  *
  * Fast PWM Waveform Timing Diagram:
  *
- * TCNT0 (Counter)
+ * TCNT0 / TCNT2 (Counters)
  *     ^
  * 255 + - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - TOP
  *     |            /|            /|            /|            /|
- * OCR | - - - - - / | - - - - - / | - - - - - / | - - - - - / | - - - - - OCR0A/B
+ * OCR | - - - - - / | - - - - - / | - - - - - / | - - - - - / | - - - - - OCR0A / OCR2A
  *     |          /  |          /  |          /  |          /  |
  *   0 +---------+---+---------+---+---------+---+---------+---+---------> Time
- * OC0x Pin (PD6 / PD5)
+ * Output Pins: PD6 (OC0A, M3 Left) / PB3 (OC2A, M1 Right)
  *   1 |=========|   |=========|   |=========|   |=========|   |
  *   0 +---------+---+---------+---+---------+---+---------+---+--------->
  *     |<--Duty->|   |<--Duty->|   |<--Duty->|   |<--Duty->|   |
@@ -44,18 +52,21 @@
  *
  * Hardware Interconnection Block Diagram:
  *
- *      ATmega328P                         L293D (IC2)
+ *      ATmega328P                         L293D (IC2 - Left Track)
  *    +-------------+                    +---------------+
  *    | PD6 (OC0A)  |---[PWM Speed M3]-->| 1,2EN  (Pin 1)|
- *    | 74HC595 Q5  |---[Dir A (M3_A)]-->| 1A     (Pin 2)|---> M3 Output 1 (Left Track)
- *    | 74HC595 Q7  |---[Dir B (M3_B)]-->| 2A     (Pin 7)|---> M3 Output 2
- *    |             |                    |               |
- *    | PD5 (OC0B)  |---[PWM Speed M4]-->| 3,4EN  (Pin 9)|
- *    | 74HC595 Q0  |---[Dir A (M4_A)]-->| 3A    (Pin 10)|---> M4 Output 1 (Right Track)
- *    | 74HC595 Q6  |---[Dir B (M4_B)]-->| 4A    (Pin 15)|---> M4 Output 2
+ *    | 74HC595 Q5  |---[Dir A (M3_A)]-->| 1A     (Pin 2)|---> M3 Terminals (Left Track)
+ *    | 74HC595 Q7  |---[Dir B (M3_B)]-->| 2A     (Pin 7)|
+ *    |             |                    +---------------+
+ *    |             |
+ *    |             |                      L293D (IC1 - Right Track)
+ *    |             |                    +---------------+
+ *    | PB3 (OC2A)  |---[PWM Speed M1]-->| 1,2EN  (Pin 1)|
+ *    | 74HC595 Q2  |---[Dir A (M1_A)]-->| 1A/3A         |---> M1 Terminals (Right Track)
+ *    | 74HC595 Q3  |---[Dir B (M1_B)]-->| 2A/4A         |
  *    +-------------+                    +---------------+
  *
- * L293D H-Bridge Truth Table:
+ * L293D H-Bridge Truth Table (M3 Left Track / M1 Right Track):
  *  +--------------+--------+--------+--------------------------+
  *  | PWM (EN)     | Dir A  | Dir B  | Motor State              |
  *  +--------------+--------+--------+--------------------------+
@@ -70,11 +81,11 @@
 #include "shift_reg.h"
 #include <avr/io.h>
 
-/* M3 (left motor): Arduino Pin 6 -> PD6 / OC0A (Timer0 comparator A PWM output). */
-static const uint8_t MOTOR3_PWM_BIT = PORTD6;
-
-/* M4 (right motor): Arduino Pin 5 -> PD5 / OC0B (Timer0 comparator B PWM output). */
-static const uint8_t MOTOR4_PWM_BIT = PORTD5;
+/* Hardware PWM Output Pin Bit Positions on AVR Ports (PD6 / PB3). */
+enum {
+  MOTOR3_PWM_BIT = PORTD6, /**< Arduino Pin 6 -> PD6 / OC0A (Timer0 PWM output). */
+  MOTOR1_PWM_BIT = PORTB3  /**< Arduino Pin 11 -> PB3 / OC2A (Timer2 PWM output). */
+};
 
 /* Localized 74HC595 Output Bit Positions for L293D H-Bridges. */
 enum {
@@ -99,19 +110,26 @@ typedef struct {
   bool inverted;
 } l293d_motor_ctx_t;
 
-/**
- * @brief Stores motor context for each motor channel.
- */
-static l293d_motor_ctx_t s_motor_contexts[4];
+/* Maximum number of active motor adapter contexts allocated in SRAM. */
+enum {
+  L293D_MAX_MOTOR_CONTEXTS = 2 /**< Number of concurrently instantiated motor handles (Left & Right). */
+};
 
 /**
- * @brief Initialize Timer0 for Fast PWM and reset motor shield hardware.
+ * @brief Stores motor context for each active motor channel.
+ */
+static l293d_motor_ctx_t s_motor_contexts[L293D_MAX_MOTOR_CONTEXTS];
+
+/**
+ * @brief Initialize Timer0 and Timer2 for Fast PWM and reset motor shield hardware.
  *
- * Configures PD6 (OC0A) and PD5 (OC0B) as outputs, sets TCCR0A/TCCR0B
- * registers for non-inverting Fast PWM at ~976 Hz, sets initial duty
- * cycles to 0%, and resets all direction bits via the 74HC595 shift register.
+ * Configures PD6 (OC0A, M3 / Left Track) and PB3 (OC2A, M1 / Right Track) as outputs,
+ * sets TCCR0A/TCCR0B and TCCR2A/TCCR2B registers for non-inverting Fast PWM at ~976 Hz,
+ * sets initial duty cycles to 0%, and resets all direction bits via the 74HC595 shift register.
  * With a frequency of ~1 kHz, the L293D H-bridge has minimal switching losses,
- * and the motors provide strong torque and smooth rotation.
+ * and the motors provide strong torque and smooth rotation. Each motor operates on its
+ * own dedicated L293D driver IC (M3 on IC2, M1 on IC1) to maximize current delivery and
+ * distribute heat dissipation evenly.
  *
  * @return MOTION_STATUS_OK on success.
  */
@@ -119,24 +137,31 @@ motion_status_t l293d_init(void) {
   /* Initialize 74HC595 shift register (set 0 and enable outputs). */
   (void)shift_reg_init();
 
-  /* Configure PWM pins as outputs on Port D. */
-  DDRD |= (uint8_t)((1 << MOTOR3_PWM_BIT) | (1 << MOTOR4_PWM_BIT));
+  /* Configure PWM pins as outputs on Port D (M3 / PD6) and Port B (M1 / PB3). */
+  DDRD |= (uint8_t)(1 << MOTOR3_PWM_BIT);
+  DDRB |= (uint8_t)(1 << MOTOR1_PWM_BIT);
 
-  /* Configure Timer0 for Fast PWM (mode 3, non-inverting on OC0A and OC0B). */
-  TCCR0A = (1 << COM0A1) | (1 << COM0B1) | (1 << WGM01) | (1 << WGM00);
+  /* Configure Timer0 for Fast PWM (mode 3, non-inverting on OC0A for M3). */
+  TCCR0A = (1 << COM0A1) | (1 << WGM01) | (1 << WGM00);
 
-  /* Prescaler = 64: 16MHz / (64 * 256) ~ 976 Hz. */
+  /* Prescaler = 64: 16MHz / (64 * 256) ~ 976.56 Hz. */
   TCCR0B = (1 << CS01) | (1 << CS00);
 
-  /* Start speed set to 0% duty cycle. */
+  /* Configure Timer2 for Fast PWM (mode 3, non-inverting on OC2A for M1). */
+  TCCR2A = (1 << COM2A1) | (1 << WGM21) | (1 << WGM20);
+
+  /* Prescaler = 64: 16MHz / (64 * 256) ~ 976.56 Hz. */
+  TCCR2B = (1 << CS22);
+
+  /* Start speed set to 0% duty cycle on active channels. */
   OCR0A = 0;
-  OCR0B = 0;
+  OCR2A = 0;
 
   /* Stop all H-bridges. */
-  (void)l293d_set_direction(L293D_CHANNEL_1, MOTOR_DIR_STOP);
+  (void)l293d_stop(L293D_CHANNEL_1);
   (void)l293d_set_direction(L293D_CHANNEL_2, MOTOR_DIR_STOP);
   (void)l293d_stop(L293D_CHANNEL_3);
-  (void)l293d_stop(L293D_CHANNEL_4);
+  (void)l293d_set_direction(L293D_CHANNEL_4, MOTOR_DIR_STOP);
 
   return MOTION_STATUS_OK;
 }
@@ -144,7 +169,7 @@ motion_status_t l293d_init(void) {
 /**
  * @brief Set the PWM duty cycle for an active motor channel.
  *
- * Updates OCR0A (Channel 3 / Left Track) or OCR0B (Channel 4 / Right Track).
+ * Updates OCR0A (Channel 3 / Left Track) or OCR2A (Channel 1 / Right Track).
  *
  * @param ch Motor channel identifier.
  * @param speed 8-bit duty cycle (0 = 0% OFF, 128 = 50%, 255 = 100% full speed).
@@ -152,18 +177,18 @@ motion_status_t l293d_init(void) {
  */
 motion_status_t l293d_set_speed(l293d_channel_t ch, uint8_t speed) {
   switch (ch) {
+  case L293D_CHANNEL_1:
+    OCR2A = speed;
+    return MOTION_STATUS_OK;
+
   case L293D_CHANNEL_3:
     OCR0A = speed;
     return MOTION_STATUS_OK;
 
-  case L293D_CHANNEL_4:
-    OCR0B = speed;
-    return MOTION_STATUS_OK;
-
-  case L293D_CHANNEL_1:
   case L293D_CHANNEL_2:
+  case L293D_CHANNEL_4:
   default:
-    /* Channels 1 and 2 use Timer2 if needed; unsupported on Timer0 */
+    /* Channels 2 and 4 are unused on the tracked platform (M1 Right Track, M3 Left Track) */
     return MOTION_STATUS_INVALID_ARG;
   }
 }
@@ -325,10 +350,13 @@ static motion_status_t l293d_adapter_stop(void *context) {
  * @return motor_handle_t Abstract motor handle.
  */
 motor_handle_t l293d_get_motor_handle(l293d_channel_t ch, bool inverted) {
-  uint8_t index = (uint8_t)(ch - 1);
+  uint8_t index = 0;
 
-  if (index > 3) {
-    index = 0;
+  for (uint8_t i = 0; i < (uint8_t)L293D_MAX_MOTOR_CONTEXTS; ++i) {
+    if (s_motor_contexts[i].channel == ch || s_motor_contexts[i].channel == (l293d_channel_t)0) {
+      index = i;
+      break;
+    }
   }
 
   s_motor_contexts[index].channel = ch;

@@ -2,12 +2,12 @@
  * @file telemetry_reporter.c
  * Copyright (C) 2026 Vladimir Roncevic <elektron.ronca@gmail.com>
  *
- * sr14_bot is free software: you can redistribute it and/or modify it
+ * trackedbot is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * sr14_bot is distributed in the hope that it will be useful, but
+ * trackedbot is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
@@ -52,15 +52,15 @@
  * @param stream Communication stream handle.
  * @param msg_id Binary response message identifier.
  * @param payload Pointer to payload byte buffer (may be NULL if len == 0).
- * @param len Number of payload bytes (0 to PROTOCOL_MAX_PAYLOAD_LEN).
+ * @param len Number of payload bytes (0 to PAYLOAD_LEN_MAX).
  * @return bool true if frame was written successfully to the stream, false otherwise.
  */
 static bool send_frame(comm_stream_t *stream, uint8_t msg_id, const uint8_t *payload, uint8_t len) {
-  if (stream == (void *)0 || (len > 0 && payload == (void *)0) || len > (uint8_t)PROTOCOL_MAX_PAYLOAD_LEN) {
+  if (stream == (void *)0 || (len > 0 && payload == (void *)0) || len > (uint8_t)PAYLOAD_LEN_MAX) {
     return false;
   }
 
-  uint8_t frame[1 + 1 + 1 + PROTOCOL_MAX_PAYLOAD_LEN + 1];
+  uint8_t frame[1 + 1 + 1 + PAYLOAD_LEN_MAX + 1];
   frame[0] = (uint8_t)PROTOCOL_SYNC_BYTE;
   frame[1] = msg_id;
   frame[2] = len;

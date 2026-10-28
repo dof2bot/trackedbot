@@ -2,12 +2,12 @@
  * @file tracked_motion.c
  * Copyright (C) 2026 Vladimir Roncevic <elektron.ronca@gmail.com>
  *
- * sr14_bot is free software: you can redistribute it and/or modify it
+ * trackedbot is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * sr14_bot is distributed in the hope that it will be useful, but
+ * trackedbot is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
@@ -104,33 +104,41 @@ static motion_status_t tracked_motion_apply_speeds(tracked_motion_t *tm) {
   case MOTION_SPIN_LEFT:
   case MOTION_SPIN_RIGHT:
     status = motor_set_speed(&tm->left_motor, cur_speed);
+
     if (status == MOTION_STATUS_OK) {
       status = motor_set_speed(&tm->right_motor, cur_speed);
     }
+
     break;
 
   case MOTION_TURN_LEFT:
     /* Skid steering: left track stop, right track at current ramped speed */
     status = motor_set_speed(&tm->left_motor, 0);
+
     if (status == MOTION_STATUS_OK) {
       status = motor_set_speed(&tm->right_motor, cur_speed);
     }
+
     break;
 
   case MOTION_TURN_RIGHT:
     /* Skid steering: left track at current ramped speed, right track stop */
     status = motor_set_speed(&tm->left_motor, cur_speed);
+
     if (status == MOTION_STATUS_OK) {
       status = motor_set_speed(&tm->right_motor, 0);
     }
+
     break;
 
   case MOTION_STOP:
   default:
     status = motor_set_speed(&tm->left_motor, 0);
+
     if (status == MOTION_STATUS_OK) {
       status = motor_set_speed(&tm->right_motor, 0);
     }
+
     break;
   }
 

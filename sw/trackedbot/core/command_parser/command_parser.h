@@ -2,12 +2,12 @@
  * @file command_parser.h
  * Copyright (C) 2026 Vladimir Roncevic <elektron.ronca@gmail.com>
  *
- * sr14_bot is free software: you can redistribute it and/or modify it
+ * trackedbot is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * sr14_bot is distributed in the hope that it will be useful, but
+ * trackedbot is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
@@ -87,12 +87,12 @@ typedef enum {
  * @brief Context structure for binary command frame parser.
  */
 typedef struct {
-  command_dispatcher_t dispatcher;                  /**< Embedded command dispatcher instance. */
-  parser_state_t state;                             /**< Current state of the parser FSM. */
-  uint8_t msg_id;                                   /**< Message ID of active frame being assembled. */
-  uint8_t payload_len;                              /**< Expected payload length of active frame. */
-  uint8_t payload_index;                            /**< Current byte write index into payload buffer. */
-  uint8_t payload_buffer[PROTOCOL_MAX_PAYLOAD_LEN]; /**< Buffer for storing incoming frame payload. */
+  command_dispatcher_t dispatcher;         /**< Embedded command dispatcher instance. */
+  parser_state_t state;                    /**< Current state of the parser FSM. */
+  uint8_t msg_id;                          /**< Message ID of active frame being assembled. */
+  uint8_t payload_len;                     /**< Expected payload length of active frame. */
+  uint8_t payload_index;                   /**< Current byte write index into payload buffer. */
+  uint8_t payload_buffer[PAYLOAD_LEN_MAX]; /**< Buffer for storing incoming frame payload. */
 } command_parser_t;
 
 /**

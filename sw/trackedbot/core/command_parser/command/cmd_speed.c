@@ -38,14 +38,17 @@ bool cmd_speed_execute(
     if (eh != (void *)0) {
       (void)error_handler_report(eh, ERR_CODE_CMD_SYNTAX_ERROR);
     }
+
     return telemetry_reporter_send_nack(stream, msg_id, ERR_CODE_CMD_SYNTAX_ERROR);
   }
 
   uint8_t spd = payload[0];
+
   if (spd < (uint8_t)TRACKED_MOTION_SPEED_MIN) {
     spd = (uint8_t)TRACKED_MOTION_SPEED_MIN;
   }
 
   (void)tracked_motion_set_speed(motion, spd);
+
   return telemetry_reporter_send_ack(stream, msg_id);
 }

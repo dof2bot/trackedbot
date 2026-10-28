@@ -38,6 +38,7 @@ bool cmd_motion_execute(
     if (eh != (void *)0) {
       (void)error_handler_report(eh, ERR_CODE_CMD_SYNTAX_ERROR);
     }
+
     return telemetry_reporter_send_nack(stream, msg_id, ERR_CODE_CMD_SYNTAX_ERROR);
   }
 
@@ -46,9 +47,11 @@ bool cmd_motion_execute(
     if (eh != (void *)0) {
       (void)error_handler_report(eh, ERR_CODE_CMD_SYNTAX_ERROR);
     }
+
     return telemetry_reporter_send_nack(stream, msg_id, ERR_CODE_CMD_SYNTAX_ERROR);
   }
 
   (void)tracked_motion_set_command(motion, (motion_cmd_t)m_cmd);
+
   return telemetry_reporter_send_ack(stream, msg_id);
 }

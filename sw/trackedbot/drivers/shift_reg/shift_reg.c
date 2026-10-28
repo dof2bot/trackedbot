@@ -2,12 +2,12 @@
  * @file shift_reg.c
  * Copyright (C) 2026 Vladimir Roncevic <elektron.ronca@gmail.com>
  *
- * sr14_bot is free software: you can redistribute it and/or modify it
+ * trackedbot is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * sr14_bot is distributed in the hope that it will be useful, but
+ * trackedbot is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
@@ -22,10 +22,10 @@
  *
  *   ATmega328P (4 pins)              74HC595 (8 outputs)              L293D H-Bridges
  * +--------------------+            +-------------------+            +---------------+
- * | Arduino D4  (PD4)  |--- CLK --->| SH_CP (Shift Clk) |            | M1 Direction  |
+ * | Arduino D4  (PD4)  |--- CLK --->| SH_CP (Shift Clk) |            | M1 Right Track|
  * | Arduino D7  (PD7)  |--- EN ---->| OE    (Out Enable)|--- Q0..Q7->| M2 Direction  |
  * | Arduino D8  (PB0)  |--- SER --->| DS    (Data In)   |            | M3 Left Track |
- * | Arduino D12 (PB4)  |--- LATCH-->| ST_CP (Latch Clk) |            | M4 Right Track|
+ * | Arduino D12 (PB4)  |--- LATCH-->| ST_CP (Latch Clk) |            | M4 Direction  |
  * +--------------------+            +-------------------+            +---------------+
  *
  * Hardware Wiring on Arduino Uno (ATmega328P):
@@ -47,19 +47,19 @@
  *  | Bit 7  | Bit 6  | Bit 5  | Bit 4  | Bit 3  | Bit 2  | Bit 1  | Bit 0  |
  *  |  M3_B  |  M4_B  |  M3_A  |  M2_B  |  M1_B  |  M1_A  |  M2_A  |  M4_A  |
  *  +--------+--------+--------+--------+--------+--------+--------+--------+
- *  (M3: Left Track on IC2, M4: Right Track on IC2)
+ *  (M3: Left Track on IC2, M1: Right Track on IC1)
  */
 
 #include "shift_reg.h"
 #include <avr/io.h>
 
-/* Port D pins: CLK (Pin 4 -> PD4), EN (Pin 7 -> PD7). */
-static const uint8_t SHIFT_REG_CLK_BIT = PORTD4;
-static const uint8_t SHIFT_REG_EN_BIT = PORTD7;
-
-/* Port B pins: SER (Pin 8 -> PB0), LATCH (Pin 12 -> PB4). */
-static const uint8_t SHIFT_REG_SER_BIT = PORTB0;
-static const uint8_t SHIFT_REG_LATCH_BIT = PORTB4;
+/* 74HC595 control pin bit positions on AVR Port D and Port B. */
+enum {
+  SHIFT_REG_CLK_BIT = PORTD4,  /**< Shift register clock pin (Arduino D4 -> PD4). */
+  SHIFT_REG_EN_BIT = PORTD7,   /**< Output enable active-low pin (Arduino D7 -> PD7). */
+  SHIFT_REG_SER_BIT = PORTB0,  /**< Serial data input pin (Arduino D8 -> PB0). */
+  SHIFT_REG_LATCH_BIT = PORTB4 /**< Storage latch clock pin (Arduino D12 -> PB4). */
+};
 
 /**
  * @brief In-memory shadow register tracking the 8-bit latch state.

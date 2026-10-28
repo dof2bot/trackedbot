@@ -46,11 +46,9 @@ The `tracked_bot` system separates sensitive digital processing logic from induc
   | (M1 & M2) |                   | (M3 & M4) |                +-----+-----+
   +-----+-----+                   +-----+-----+                      |
         |                               |                            v
-        |                               v                      +-----------+
-        |                     [2x DC Track Motors]             |  ESP8266  | (3.3V LDO)
-        |                                                      +-----------+
-        v
-  [Aux Actuators]
+        v                               v                      +-----------+
+  [Right Track Motor]            [Left Track Motor]            |  ESP8266  | (3.3V LDO)
+        (M1)                            (M3)                   +-----------+
 
   ==================================================================================
   COMMON GROUND (GND): All power sources share a single low-impedance ground return

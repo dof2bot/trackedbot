@@ -2,12 +2,12 @@
  * @file binary_protocol_types.h
  * Copyright (C) 2026 Vladimir Roncevic <elektron.ronca@gmail.com>
  *
- * sr14_bot is free software: you can redistribute it and/or modify it
+ * trackedbot is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * sr14_bot is distributed in the hope that it will be useful, but
+ * trackedbot is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
@@ -64,11 +64,10 @@ extern "C" {
 #endif
 
 /**
- * @brief Wire-level frame framing delimiters and buffer sizing limits.
+ * @brief Wire-level frame framing delimiter.
  */
 enum {
-  PROTOCOL_SYNC_BYTE = 0xAA,    /**< Frame start synchronization delimiter (170 dec). */
-  PROTOCOL_MAX_PAYLOAD_LEN = 16 /**< Maximum allowable payload length in bytes. */
+  PROTOCOL_SYNC_BYTE = 0xAA /**< Frame start synchronization delimiter (170 dec). */
 };
 
 /**
@@ -100,9 +99,10 @@ typedef enum {
 } protocol_resp_id_t;
 
 /**
- * @brief Fixed payload byte lengths for command and response packets.
+ * @brief Fixed payload byte lengths and capacity bounds for packets.
  */
 enum {
+  PAYLOAD_LEN_MAX = 16,       /**< Maximum allowable payload length in bytes. */
   PAYLOAD_LEN_MOTION = 1,     /**< Payload length for CMD_ID_MOTION (1 byte). */
   PAYLOAD_LEN_SET_SPEED = 1,  /**< Payload length for CMD_ID_SET_SPEED (1 byte). */
   PAYLOAD_LEN_STOP = 0,       /**< Payload length for CMD_ID_STOP (0 bytes). */
@@ -120,18 +120,18 @@ enum {
 /**
  * @brief Bitmask flags for communication failsafe watchdog status reporting.
  */
-enum {
+typedef enum {
   FAILSAFE_FLAG_ENABLED = 0x01,  /**< Watchdog timer is actively enabled and arming safety. */
   FAILSAFE_FLAG_TRIGGERED = 0x02 /**< Watchdog timeout has expired, triggering safe stop. */
-};
+} protocol_failsafe_flag_t;
 
 /**
  * @brief Kinematic motion lock operational states.
  */
-enum {
+typedef enum {
   MOTION_LOCK_OFF = 0x00, /**< Kinematic actuator commands are permitted and unlocked. */
   MOTION_LOCK_ON = 0x01   /**< Kinematic actuator commands are locked due to safety/fault. */
-};
+} protocol_motion_lock_t;
 
 #ifdef __cplusplus
 }

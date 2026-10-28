@@ -39,7 +39,7 @@ The **tracked_bot** platform implements a modular dual-processor computing archi
   |              +--------------+-------[ 8-Position DIP Switch ]-----------------+                   |
   |                                   (Serial UART D0/RX, D1/TX)                                      |
   |                                                                                       |           |
-  |                             Timer0 Fast PWM (D5/OC0B, D6/OC0A) <----------------------+           |
+  |                             Fast PWM (D6/OC0A Left, D11/OC2A Right) <----------------+           |
   |                             74HC595 Shift Bus (D4/CLK, D7/EN, D8/SER, D12/LATCH) <----+           |
   |                             Sensors & ADC Bus (A0..A5, D2/INT0) <---------------------+           |
   +-----------------------------+---------------------------------------------------------|-----------+
@@ -51,14 +51,15 @@ The **tracked_bot** platform implements a modular dual-processor computing archi
   |   +---------------------+   |   +-----------------------+             +-----------------------+   |
   |   |      74HC595        |   |   |       L293D IC1       |             |       L293D IC2       |   |
   |   | 8-Bit Shift Reg     |======>| Dual H-Bridge Driver  |             | Dual H-Bridge Driver  |   |
-  |   | (Dir Demux Q0..Q7)  |   |   | (Channels M1 & M2)    |             | (Channels M3 & M4)    |   |
-  |   +---------------------+   |   +-----------------------+             +-----------+-----------+   |
-  |                             |                                                     |               |
-  +-----------------------------+-----------------------------------------------------|---------------+
-                                                                                      |
-                                               +--------------------------------------+
-                                               | (Left Track M3 & Right Track M4)
-                                               v
+  |   | (Dir Demux Q0..Q7)  |   |   | (Right Track M1)      |             | (Left Track M3)       |   |
+  |   +---------------------+   |   +-----------+-----------+             +-----------+-----------+   |
+  |                             |               |                                     |               |
+  +-----------------------------+---------------|-------------------------------------|---------------+
+                                                |                                     |
+                                                | (Right Track M1)                    | (Left Track M3)
+                                                +------------------+   +--------------+
+                                                                   |   |
+                                                                   v   v
   +---------------------------------------------------------------------------------------------------+
   | LOCOMOTION PLATFORM         | T101 Aluminum Chassis + Dual DC Geared Motors + Rubber Tracks       |
   +---------------------------------------------------------------------------------------------------+
@@ -91,13 +92,13 @@ This master matrix consolidates all physical signal mappings between the **ATmeg
 | **D2** | `PD2` | `INT0` (External Interrupt 0) | *Not connected* | *Not connected* | **FREE GPIO:** Low-latency sensor interrupt or wheel encoder |
 | **D3** | `PD3` | `OC2B` (Timer2 Output Compare B) | Motor 2 Speed PWM (`PWM2B`) | *Not connected* | Reserved for Auxiliary Motor 2 |
 | **D4** | `PD4` | `XCK` / `T0` (General I/O) | 74HC595 Shift Clock (`DIR_CLK`)| *Not connected* | **Shift Register Clock:** Clocks direction bits into 74HC595 |
-| **D5** | `PD5` | `OC0B` (Timer0 Output Compare B) | Motor 4 Speed PWM (`PWM0B`) | *Not connected* | **Right Track Speed PWM:** Timer0 Fast PWM (0–255) |
+| **D5** | `PD5` | `OC0B` (Timer0 Output Compare B) | Motor 4 Speed PWM (`PWM0B`) | *Not connected* | Reserved for Auxiliary Motor 4 |
 | **D6** | `PD6` | `OC0A` (Timer0 Output Compare A) | Motor 3 Speed PWM (`PWM0A`) | *Not connected* | **Left Track Speed PWM:** Timer0 Fast PWM (0–255) |
 | **D7** | `PD7` | `AIN1` (General I/O) | 74HC595 Output Enable (`DIR_EN`) | *Not connected* | **Shift Register Output Enable:** Active-low output driver |
 | **D8** | `PB0` | `ICP1` / `CLKO` (General I/O) | 74HC595 Serial Data (`DIR_SER`) | *Not connected* | **Shift Register Serial Data:** Serial bit-stream input |
 | **D9** | `PB1` | `OC1A` (Timer1 Output Compare A) | Servo 2 PWM (`PWM1A`) | *Not connected* | Reserved for Pan-Tilt Servo 2 |
 | **D10** | `PB2` | `OC1B` (Timer1 Output Compare B) | Servo 1 PWM (`PWM1B`) | *Not connected* | Reserved for Pan-Tilt Servo 1 |
-| **D11** | `PB3` | `OC2A` / `MOSI` | Motor 1 Speed PWM (`PWM2A`) | *Not connected* | Reserved for Auxiliary Motor 1 |
+| **D11** | `PB3` | `OC2A` / `MOSI` | Motor 1 Speed PWM (`PWM2A`) | *Not connected* | **Right Track Speed PWM:** Timer2 Fast PWM (0–255) |
 | **D12** | `PB4` | `MISO` (General I/O) | 74HC595 Latch Clock (`DIR_LATCH`)| *Not connected* | **Shift Register Latch:** Latches internal buffer to outputs |
 | **D13** | `PB5` | `SCK` (Onboard LED) | *Not connected* (Arduino LED) | *Not connected* | **FREE GPIO:** Built-in LED / SPI SCK clock |
 

@@ -84,7 +84,7 @@ sw/trackedbot/
 ├── drivers/                           ◄── HARDWARE ADAPTERS (AVR registers & shield pins)
 │   ├── l293d_shield/                  ◄── L293D motor shield adapter
 │   │   ├── l293d_shield.h                  - l293d_channel_t enum, API, imotor adapter
-│   │   └── l293d_shield.c                  - Timer0 PWM registers (OCR0A/OCR0B), H-bridge logic
+│   │   └── l293d_shield.c                  - Timer0 & Timer2 PWM registers (OCR0A/OCR2A), H-bridge logic
 │   │
 │   ├── uart_avr/                      ◄── USART0 stream adapter (Non-blocking RX & TX)
 │   │   ├── uart_avr.h                      - uart_config_t, API, icomm adapter
@@ -163,7 +163,7 @@ typedef enum {
 
 To satisfy the **Open/Closed Principle (OCP)** and eliminate brittle global macros, hardware-specific constants are strictly confined to their respective adapter modules:
 
-* **L293D Shield Pin Mappings:** Port registers (`DDRD`, `PORTD`, `DDRB`, `PORTB`) and Timer0 fast PWM configuration (`TCCR0A`, `TCCR0B`, `OCR0A`, `OCR0B`) are defined solely inside `drivers/l293d_shield/l293d_shield.c`. For electrical pinout details, see [../hw/motor_shield.md](../hw/motor_shield.md).
+* **L293D Shield Pin Mappings:** Port registers (`DDRD`, `PORTD`, `DDRB`, `PORTB`) and Timer0 / Timer2 fast PWM configuration (`TCCR0A`, `TCCR0B`, `OCR0A`, `TCCR2A`, `TCCR2B`, `OCR2A`) are defined solely inside `drivers/l293d_shield/l293d_shield.c`. For electrical pinout details, see [../hw/motor_shield.md](../hw/motor_shield.md).
 * **74HC595 Direction Latch:** Serial clock (`PD4`), latch (`PB4`), serial data (`PB0`), and output enable (`PD7`) are isolated inside `drivers/shift_reg/shift_reg.c`.
 * **USART0 Hardware Registers:** Baud rate registers (`UBRR0H`, `UBRR0L`), control registers (`UCSR0A`, `UCSR0B`, `UCSR0C`), and interrupt vectors (`USART_RX_vect`, `USART_UDRE_vect`) are encapsulated within `drivers/uart_avr/uart_avr.c`. For Wi-Fi ESP8266 routing via DIP switches, see [../hw/main_board.md](../hw/main_board.md).
 
@@ -333,7 +333,7 @@ sequenceDiagram
     participant Slew as slew_limiter
     participant L293D as l293d_shield
     participant ShiftReg as 74HC595 (shift_reg)
-    participant Motors as DC Motors M3 & M4
+    participant Motors as DC Motors M3 & M1
 
     Client->>USART: Transmit "FWD\n" command
     Note over USART: Circular RX ring buffer stores incoming bytes via ISR
@@ -356,7 +356,7 @@ sequenceDiagram
 
         Note over TM: 20 ms periodic timer tick -> tracked_motion_update()
         TM->>Slew: slew_limiter_update() -> Smoothly ramps PWM duty cycle
-        TM->>L293D: motor_set_speed(OCR0A = cur_speed, OCR0B = cur_speed)
+        TM->>L293D: motor_set_speed(OCR0A = cur_speed, OCR2A = cur_speed)
         L293D->>Motors: Smooth PWM acceleration drives tracks forward
     end
 ```
@@ -367,7 +367,7 @@ sequenceDiagram
 
 * **[Binary Protocol Specification (protocol.md)](protocol.md)**: Frame anatomy, CRC-8 polynomial, message IDs, telemetry structs, and receiver state machine.
 * **[Hardware Overview (../hw/README.md)](../hw/README.md)**: Master unified pinout matrix, dual-supply architecture, and hardware sitemap.
-* **[Motor Driver Shield (../hw/motor_shield.md)](../hw/motor_shield.md)**: Timer0 PWM registers (`OCR0A`/`OCR0B`), 74HC595 direction multiplexer, and M3/M4 differential channel mapping.
+* **[Motor Driver Shield (../hw/motor_shield.md)](../hw/motor_shield.md)**: Timer0 & Timer2 PWM registers (`OCR0A`/`OCR2A`), 74HC595 direction multiplexer, and M3 (Left Track) / M1 (Right Track) split-chip mapping.
 * **[Main Controller Board (../hw/main_board.md)](../hw/main_board.md)**: Uno+WiFi R3 (ATmega328P + ESP8266), 8-position DIP switch configurations, and flashing procedures.
 * **[Power Supply & Rails (../hw/power_supply.md)](../hw/power_supply.md)**: Dual-rail isolation (`EXT_PWR` vs. USB), motor EMI filtering, and battery current budgets.
 * **[Mechanical Chassis & Assembly (../body/README.md)](../body/README.md)**: T101 platform specifications, skid-steering kinematics, and physical assembly guide.

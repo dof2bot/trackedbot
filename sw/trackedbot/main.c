@@ -2,12 +2,12 @@
  * @file main.c
  * Copyright (C) 2026 Vladimir Roncevic <elektron.ronca@gmail.com>
  *
- * sr14_bot is free software: you can redistribute it and/or modify it
+ * trackedbot is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * sr14_bot is distributed in the hope that it will be useful, but
+ * trackedbot is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
@@ -35,7 +35,7 @@
  *                                     | (Ports / Adapters)
  *               +---------------------v---------------------+
  *               |              Domain Core                  |
- *               |  tracked_motion  failsafe  command_parser  |
+ *               |  tracked_motion  failsafe  command_parser |
  *               +---------------------+---------------------+
  *                                     |
  *      ========================= SUPERLOOP =========================
@@ -108,6 +108,7 @@ int main(void) {
   if (!led_status_init()) {
     /* If diagnostic LED fails to init, proceed to init error handler */
   }
+
   (void)error_handler_init(&s_error_handler);
 
   /* Initialize Hardware Drivers (Adapters). */
@@ -125,7 +126,7 @@ int main(void) {
 
   /* Obtain Abstract Motor and Stream Handles (Ports / DIP). */
   motor_handle_t left_motor = l293d_get_motor_handle(L293D_CHANNEL_3, false);
-  motor_handle_t right_motor = l293d_get_motor_handle(L293D_CHANNEL_4, false);
+  motor_handle_t right_motor = l293d_get_motor_handle(L293D_CHANNEL_1, false);
   comm_stream_t stream = uart_avr_get_stream();
 
   /* Initialize Domain Logic via Dependency Injection. */
