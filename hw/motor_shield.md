@@ -116,26 +116,26 @@ The 74HC595 shift register deserializes an 8-bit word clocked in from the microc
 ### Subsystem Topology:
 ```mermaid
 flowchart LR
-    subgraph MCU ["ATmega328P (4 Control Pins)"]
-        D4["D4 (PD4) - Shift Clock"]
-        D7["D7 (PD7) - Output Enable"]
-        D8["D8 (PB0) - Serial Data"]
-        D12["D12 (PB4) - Storage Latch"]
+    subgraph MCU ["<b>ATmega328P (Control Pins)</b>"]
+        D4["<b>D4 (PD4)</b><br/>Shift Clock"]
+        D7["<b>D7 (PD7)</b><br/>Output Enable"]
+        D8["<b>D8 (PB0)</b><br/>Serial Data"]
+        D12["<b>D12 (PB4)</b><br/>Storage Latch"]
     end
 
-    subgraph ShiftReg ["74HC595 (8-Bit SIPO Shift Register)"]
-        SH_CP["SH_CP (Shift Clock)"]
-        OE["~OE (Output Enable)"]
-        DS["DS (Serial Data In)"]
-        ST_CP["ST_CP (Storage Latch)"]
-        OUTPUTS["Outputs Q0..Q7"]
+    subgraph ShiftReg ["<b>74HC595 (8-Bit Shift Register)</b>"]
+        SH_CP["<b>SH_CP</b><br/>Shift Clock"]
+        OE["<b>~OE</b><br/>Output Enable"]
+        DS["<b>DS</b><br/>Serial Data In"]
+        ST_CP["<b>ST_CP</b><br/>Storage Latch"]
+        OUTPUTS["<b>Outputs Q0..Q7</b><br/>Direction Demux Bus"]
     end
 
-    subgraph HBridge ["Dual L293D H-Bridges"]
-        M1_DIR["Motor 1 Direction (Right Track)"]
-        M2_DIR["Motor 2 Direction"]
-        M3_DIR["Motor 3 Direction (Left Track)"]
-        M4_DIR["Motor 4 Direction"]
+    subgraph HBridge ["<b>Dual L293D H-Bridges</b>"]
+        M1_DIR["<b>Motor 1 Direction</b><br/>Right Track"]
+        M2_DIR["<b>Motor 2 Direction</b><br/>Auxiliary"]
+        M3_DIR["<b>Motor 3 Direction</b><br/>Left Track"]
+        M4_DIR["<b>Motor 4 Direction</b><br/>Auxiliary"]
     end
 
     D4 -->|"CLK"| SH_CP
@@ -148,6 +148,18 @@ flowchart LR
     OUTPUTS -->|"Q1, Q4"| M2_DIR
     OUTPUTS -->|"Q5, Q7"| M3_DIR
     OUTPUTS -->|"Q0, Q6"| M4_DIR
+
+    classDef mcuPin fill:#0c4a6e,stroke:#38bdf8,stroke-width:2px,color:#ffffff;
+    classDef regPin fill:#4338ca,stroke:#818cf8,stroke-width:2px,color:#ffffff;
+    classDef hBridge fill:#831843,stroke:#f472b6,stroke-width:2px,color:#ffffff;
+
+    class D4,D7,D8,D12 mcuPin;
+    class SH_CP,OE,DS,ST_CP,OUTPUTS regPin;
+    class M1_DIR,M2_DIR,M3_DIR,M4_DIR hBridge;
+
+    style MCU fill:none,stroke:#38bdf8,stroke-width:2px,stroke-dasharray: 4 4
+    style ShiftReg fill:none,stroke:#818cf8,stroke-width:2px,stroke-dasharray: 4 4
+    style HBridge fill:none,stroke:#f472b6,stroke-width:2px,stroke-dasharray: 4 4
 ```
 
 ### Output Bit Mapping (Q0 – Q7):
@@ -219,35 +231,35 @@ Speed regulation is performed by driving the L293D enable inputs (`1,2EN`) with 
 
 ```mermaid
 flowchart LR
-    subgraph MCU_CTRL ["Microcontroller & Shift Register Outputs"]
-        PWM_M3["PD6 / OC0A<br/>(Timer0 Fast PWM)"]
-        DIR_M3_A["74HC595 Q5<br/>(Dir A - M3_A)"]
-        DIR_M3_B["74HC595 Q7<br/>(Dir B - M3_B)"]
+    subgraph MCU_CTRL ["<b>Microcontroller & Shift Register</b>"]
+        PWM_M3["<b>PD6 / OC0A</b><br/>Timer0 Fast PWM"]
+        DIR_M3_A["<b>74HC595 Q5</b><br/>Dir A - M3_A"]
+        DIR_M3_B["<b>74HC595 Q7</b><br/>Dir B - M3_B"]
 
-        PWM_M1["PB3 / OC2A<br/>(Timer2 Fast PWM)"]
-        DIR_M1_A["74HC595 Q2<br/>(Dir A - M1_A)"]
-        DIR_M1_B["74HC595 Q3<br/>(Dir B - M1_B)"]
+        PWM_M1["<b>PB3 / OC2A</b><br/>Timer2 Fast PWM"]
+        DIR_M1_A["<b>74HC595 Q2</b><br/>Dir A - M1_A"]
+        DIR_M1_B["<b>74HC595 Q3</b><br/>Dir B - M1_B"]
     end
 
-    subgraph IC2 ["L293D IC2 (Left Track Actuation)"]
-        EN_IC2["1,2EN (Pin 1)<br/>PWM Speed Enable"]
-        A1_IC2["1A (Pin 2)<br/>Half-Bridge 1"]
-        A2_IC2["2A (Pin 7)<br/>Half-Bridge 2"]
-        OUT_M3["M3 Output Channels"]
+    subgraph IC2 ["<b>L293D IC2 (Left Track Actuation)</b>"]
+        EN_IC2["<b>1,2EN (Pin 1)</b><br/>PWM Speed Enable"]
+        A1_IC2["<b>1A (Pin 2)</b><br/>Half-Bridge 1"]
+        A2_IC2["<b>2A (Pin 7)</b><br/>Half-Bridge 2"]
+        OUT_M3["<b>M3 Channels</b><br/>Pins 3 & 6"]
         EN_IC2 & A1_IC2 & A2_IC2 --> OUT_M3
     end
 
-    subgraph IC1 ["L293D IC1 (Right Track Actuation)"]
-        EN_IC1["1,2EN (Pin 1)<br/>PWM Speed Enable"]
-        A1_IC1["1A / 3A<br/>Half-Bridge 1"]
-        A2_IC1["2A / 4A<br/>Half-Bridge 2"]
-        OUT_M1["M1 Output Channels"]
+    subgraph IC1 ["<b>L293D IC1 (Right Track Actuation)</b>"]
+        EN_IC1["<b>1,2EN (Pin 1)</b><br/>PWM Speed Enable"]
+        A1_IC1["<b>1A / 3A</b><br/>Half-Bridge 1"]
+        A2_IC1["<b>2A / 4A</b><br/>Half-Bridge 2"]
+        OUT_M1["<b>M1 Channels</b><br/>Pins 11 & 14"]
         EN_IC1 & A1_IC1 & A2_IC1 --> OUT_M1
     end
 
-    subgraph Motors ["Track Actuators"]
-        LEFT_TRACK["Left Track DC Motor (M3)"]
-        RIGHT_TRACK["Right Track DC Motor (M1)"]
+    subgraph Motors ["<b>Track Actuators</b>"]
+        LEFT_TRACK["<b>Left Track Motor (M3)</b>"]
+        RIGHT_TRACK["<b>Right Track Motor (M1)</b>"]
     end
 
     PWM_M3 -->|"PWM Duty Cycle"| EN_IC2
@@ -259,6 +271,19 @@ flowchart LR
     DIR_M1_A -->|"Direction Bit"| A1_IC1
     DIR_M1_B -->|"Direction Bit"| A2_IC1
     OUT_M1 ==>|"Bidirectional Drive"| RIGHT_TRACK
+
+    classDef mcuStyle fill:#0c4a6e,stroke:#38bdf8,stroke-width:2px,color:#ffffff;
+    classDef hBridge fill:#831843,stroke:#f472b6,stroke-width:2px,color:#ffffff;
+    classDef motorStyle fill:#701a75,stroke:#e879f9,stroke-width:2px,color:#ffffff;
+
+    class PWM_M3,DIR_M3_A,DIR_M3_B,PWM_M1,DIR_M1_A,DIR_M1_B mcuStyle;
+    class EN_IC2,A1_IC2,A2_IC2,OUT_M3,EN_IC1,A1_IC1,A2_IC1,OUT_M1 hBridge;
+    class LEFT_TRACK,RIGHT_TRACK motorStyle;
+
+    style MCU_CTRL fill:none,stroke:#38bdf8,stroke-width:2px,stroke-dasharray: 4 4
+    style IC2 fill:none,stroke:#f472b6,stroke-width:2px,stroke-dasharray: 4 4
+    style IC1 fill:none,stroke:#f472b6,stroke-width:2px,stroke-dasharray: 4 4
+    style Motors fill:none,stroke:#e879f9,stroke-width:2px,stroke-dasharray: 4 4
 ```
 
 ```

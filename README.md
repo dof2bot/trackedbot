@@ -23,36 +23,36 @@ The **trackedbot** project is organized into three decoupled layers:
 
 ```mermaid
 flowchart TD
-    CLIENT["Host Client / Controller<br/>(CLI, Web GUI, Autonomous Navigator)"]
+    CLIENT["<b>Host Client / Controller</b><br/>CLI, Web GUI, Autonomous Navigator"]
 
-    subgraph COMM ["Communication Medium"]
+    subgraph COMM ["<b>Communication Medium</b>"]
         direction LR
-        UART["Serial UART<br/>(115200 Baud 8-N-1)"]
-        WIFI["ESP8266 Wi-Fi<br/>(Transparent Bridge)"]
+        UART["<b>Serial UART</b><br/>115200 Baud 8-N-1"]
+        WIFI["<b>ESP8266 Wi-Fi</b><br/>Transparent Bridge"]
     end
 
-    subgraph SW ["Software Layer (sw/ - Embedded C Firmware)"]
+    subgraph SW ["<b>Software Layer (sw/)</b>"]
         direction TB
-        PARSER["Binary Protocol Parser<br/>(5-State Resilient FSM)"]
-        CMD_DISPATCH["Command Dispatcher<br/>(Command Pattern)"]
-        KINEMATICS["Kinematics Engine<br/>(Differential Slew Rate & Mixing)"]
-        HAL["Hardware Abstraction Layer<br/>(GPIO, PWM, ShiftReg, ADC)"]
+        PARSER["<b>Binary Protocol Parser</b><br/>5-State Resilient FSM"]
+        CMD_DISPATCH["<b>Command Dispatcher</b><br/>Command Pattern"]
+        KINEMATICS["<b>Kinematics Engine</b><br/>Differential Slew & Mixing"]
+        HAL["<b>Hardware Abstraction Layer</b><br/>GPIO, PWM, ShiftReg, ADC"]
         PARSER --> CMD_DISPATCH --> KINEMATICS --> HAL
     end
 
-    subgraph HW ["Hardware Layer (hw/ - Electronics & Power)"]
+    subgraph HW ["<b>Hardware Layer (hw/)</b>"]
         direction TB
-        MCU["Uno+WiFi R3 Board<br/>(ATmega328P @ 16 MHz)"]
-        SHIELD["L293D Motor Shield<br/>(Dual H-Bridge + 74HC595)"]
-        POWER["Dual Power Supply Rails<br/>(5V Logic + 7.4V Motor Power)"]
-        SENSE["Battery Voltage Sensing<br/>(ADC Pin A0 Voltage Divider)"]
+        MCU["<b>Uno+WiFi R3 Board</b><br/>ATmega328P @ 16 MHz"]
+        SHIELD["<b>L293D Motor Shield</b><br/>Dual H-Bridge + 74HC595"]
+        POWER["<b>Dual Power Supply Rails</b><br/>5V Logic + 7.4V Motor Power"]
+        SENSE["<b>Battery Voltage Sensing</b><br/>ADC Pin A0 Voltage Divider"]
     end
 
-    subgraph BODY ["Body Layer (body/ - Mechanical Chassis)"]
+    subgraph BODY ["<b>Body Layer (body/)</b>"]
         direction TB
-        CHASSIS["T101 All-Metal Chassis<br/>(Aircraft-Grade 6061 Aluminum)"]
-        TRACKS["Differential Track Belts<br/>(Modular Engineering POM Links)"]
-        MOTORS["Twin 9V DC Metal Gearmotors<br/>(Left Track M3 / Right Track M1)"]
+        CHASSIS["<b>T101 Aluminum Chassis</b><br/>Aircraft-Grade 6061 Aluminum"]
+        TRACKS["<b>Differential Track Belts</b><br/>Modular POM Tread Links"]
+        MOTORS["<b>Twin 9V DC Gearmotors</b><br/>Left Track M3 / Right Track M1"]
         CHASSIS --- TRACKS --- MOTORS
     end
 
@@ -61,11 +61,22 @@ flowchart TD
     SW --> HW
     HW --> BODY
 
-    style CLIENT fill:#e0f2f1,stroke:#00897b,stroke-width:2px
-    style COMM fill:#e8eaf6,stroke:#3f51b5,stroke-width:2px
-    style SW fill:#e1f5fe,stroke:#0288d1,stroke-width:2px
-    style HW fill:#fff3e0,stroke:#f57c00,stroke-width:2px
-    style BODY fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    classDef clientStyle fill:#0f766e,stroke:#14b8a6,stroke-width:2px,color:#ffffff;
+    classDef commStyle fill:#312e81,stroke:#6366f1,stroke-width:2px,color:#ffffff;
+    classDef swStyle fill:#0369a1,stroke:#38bdf8,stroke-width:2px,color:#ffffff;
+    classDef hwStyle fill:#c2410c,stroke:#fb923c,stroke-width:2px,color:#ffffff;
+    classDef bodyStyle fill:#701a75,stroke:#e879f9,stroke-width:2px,color:#ffffff;
+
+    class CLIENT clientStyle;
+    class UART,WIFI commStyle;
+    class PARSER,CMD_DISPATCH,KINEMATICS,HAL swStyle;
+    class MCU,SHIELD,POWER,SENSE hwStyle;
+    class CHASSIS,TRACKS,MOTORS bodyStyle;
+
+    style COMM fill:none,stroke:#6366f1,stroke-width:2px,stroke-dasharray: 4 4
+    style SW fill:none,stroke:#38bdf8,stroke-width:2px,stroke-dasharray: 4 4
+    style HW fill:none,stroke:#fb923c,stroke-width:2px,stroke-dasharray: 4 4
+    style BODY fill:none,stroke:#e879f9,stroke-width:2px,stroke-dasharray: 4 4
 ```
 
 

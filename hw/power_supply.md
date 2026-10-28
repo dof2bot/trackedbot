@@ -27,13 +27,13 @@ The `tracked_bot` system separates sensitive digital processing logic from induc
 
 ```mermaid
 flowchart TD
-    subgraph MotorPower ["Isolated Motor Power Rail (High Current)"]
-        BAT["Motor Battery Pack<br/>(2S Li-Ion / Li-Po: 7.4V - 8.4V)"]
-        EXT_PWR["EXT_PWR Screw Terminals<br/>(L293D Shield)"]
-        IC1["L293D IC1<br/>(Channels M1 & M2)"]
-        IC2["L293D IC2<br/>(Channels M3 & M4)"]
-        MOTOR_R["Right Track Motor (M1)"]
-        MOTOR_L["Left Track Motor (M3)"]
+    subgraph MotorPower ["<b>Isolated Motor Power Rail (High Current)</b>"]
+        BAT["<b>Motor Battery Pack</b><br/>2S Li-Ion / LiPo (7.4V - 8.4V)"]
+        EXT_PWR["<b>EXT_PWR Screw Terminals</b><br/>L293D Shield Power Input"]
+        IC1["<b>L293D Driver IC1</b><br/>Channels M1 & M2"]
+        IC2["<b>L293D Driver IC2</b><br/>Channels M3 & M4"]
+        MOTOR_R["<b>Right Track Motor (M1)</b>"]
+        MOTOR_L["<b>Left Track Motor (M3)</b>"]
 
         BAT ==>|"Fused High Current"| EXT_PWR
         EXT_PWR ==>|"Motor Power Bus"| IC1
@@ -42,23 +42,35 @@ flowchart TD
         IC2 ==>|"PWM Drive"| MOTOR_L
     end
 
-    subgraph LogicPower ["Isolated Logic Power Rail (Low Noise)"]
-        USB["Logic Supply<br/>(USB 5.0V / Power Bank)"]
-        ATMEGA["ATmega328P<br/>(5.0V Digital Logic)"]
-        LDO["Onboard 3.3V LDO"]
-        ESP["ESP8266EX<br/>(3.3V Wi-Fi SoC)"]
+    subgraph LogicPower ["<b>Isolated Logic Power Rail (Low Noise)</b>"]
+        USB["<b>Logic Supply</b><br/>USB 5.0V / Power Bank"]
+        ATMEGA["<b>ATmega328P MCU</b><br/>5.0V Digital Logic"]
+        LDO["<b>Onboard 3.3V LDO</b><br/>Voltage Regulator"]
+        ESP["<b>ESP8266EX SoC</b><br/>3.3V Wi-Fi Coprocessor"]
 
         USB -->|"5V Rail"| ATMEGA
         USB -->|"5V Rail"| LDO
         LDO -->|"3.3V Rail"| ESP
     end
 
-    subgraph GroundReturn ["Common Reference"]
-        GND["COMMON GROUND (GND)<br/>Single low-impedance star ground return plane"]
+    subgraph GroundReturn ["<b>Common Reference</b>"]
+        GND["<b>COMMON GROUND (GND)</b><br/>Single low-impedance star ground return plane"]
     end
 
     MotorPower --- GND
     LogicPower --- GND
+
+    classDef motorRail fill:#7c2d12,stroke:#fb923c,stroke-width:2px,color:#ffffff;
+    classDef logicRail fill:#0c4a6e,stroke:#38bdf8,stroke-width:2px,color:#ffffff;
+    classDef gndStyle fill:#0f766e,stroke:#14b8a6,stroke-width:2px,color:#ffffff;
+
+    class BAT,EXT_PWR,IC1,IC2,MOTOR_R,MOTOR_L motorRail;
+    class USB,ATMEGA,LDO,ESP logicRail;
+    class GND gndStyle;
+
+    style MotorPower fill:none,stroke:#fb923c,stroke-width:2px,stroke-dasharray: 4 4
+    style LogicPower fill:none,stroke:#38bdf8,stroke-width:2px,stroke-dasharray: 4 4
+    style GroundReturn fill:none,stroke:#14b8a6,stroke-width:1px
 ```
 
 ---
@@ -135,18 +147,30 @@ To prevent deep discharging of Li-Ion/Li-Po batteries (which must never drop bel
 
 ```mermaid
 flowchart TD
-    VBAT["V_BAT (7.4V - 8.4V)<br/>Battery Positive Lead"]
-    R1["R1: 30 kΩ<br/>(Top Resistor)"]
-    TAP{"Voltage Sense Tap Point<br/>K = 0.25 (1/4 Ratio)"}
-    R2["R2: 10 kΩ<br/>(Bottom Resistor)"]
-    A0["Arduino Pin A0 (ADC0)<br/>V_ADC: 0.0V - 2.10V"]
-    GND["Common Ground (GND)"]
+    VBAT["<b>V_BAT (7.4V - 8.4V)</b><br/>Battery Positive Lead"]
+    R1["<b>R1: 30 kΩ</b><br/>Top Resistor"]
+    TAP{"<b>Sense Tap Point</b><br/>K = 0.25 (1/4 Ratio)"}
+    R2["<b>R2: 10 kΩ</b><br/>Bottom Resistor"]
+    A0["<b>Arduino Pin A0</b><br/>ADC0 (0.0V - 2.10V)"]
+    GND["<b>Common Ground (GND)</b>"]
 
     VBAT --> R1
     R1 --> TAP
     TAP -->|"V_ADC = V_BAT / 4"| A0
     TAP --> R2
     R2 --> GND
+
+    classDef vbatStyle fill:#7c2d12,stroke:#fb923c,stroke-width:2px,color:#ffffff;
+    classDef resStyle fill:#1e293b,stroke:#94a3b8,stroke-width:2px,color:#ffffff;
+    classDef tapStyle fill:#4338ca,stroke:#818cf8,stroke-width:2px,color:#ffffff;
+    classDef adcStyle fill:#0c4a6e,stroke:#38bdf8,stroke-width:2px,color:#ffffff;
+    classDef gndStyle fill:#0f766e,stroke:#14b8a6,stroke-width:2px,color:#ffffff;
+
+    class VBAT vbatStyle;
+    class R1,R2 resStyle;
+    class TAP tapStyle;
+    class A0 adcStyle;
+    class GND gndStyle;
 ```
 
 ### Voltage Divider Calculation:
