@@ -42,12 +42,19 @@
  *  +-----------------------------+-----------------------+--------------------------------------+
  *  | Error Code                  | Transitioned Mode     | Safety Reaction Dispatched           |
  *  +-----------------------------+-----------------------+--------------------------------------+
+ *  | ERR_CODE_NONE               | (Retains Mode)        | REACTION_NONE                        |
  *  | ERR_CODE_INIT_UART          | SYSTEM_MODE_DEGRADED  | REACTION_ENTER_DEGRADED_LOCK_COMM    |
  *  | ERR_CODE_INIT_MOTORS        | SYSTEM_MODE_DEGRADED  | REACTION_ENTER_DEGRADED_LOCK_MOTION  |
- *  | ERR_CODE_INIT_TIMER/PARSER  | SYSTEM_MODE_DEGRADED  | REACTION_ENTER_DEGRADED_LOCK_MOTION  |
+ *  | ERR_CODE_INIT_TIMER         | SYSTEM_MODE_DEGRADED  | REACTION_ENTER_DEGRADED_LOCK_MOTION  |
+ *  | ERR_CODE_INIT_PARSER        | SYSTEM_MODE_DEGRADED  | REACTION_ENTER_DEGRADED_LOCK_MOTION  |
+ *  | ERR_CODE_INIT_FAILSAFE      | SYSTEM_MODE_DEGRADED  | REACTION_ENTER_DEGRADED_LOCK_MOTION  |
+ *  | ERR_CODE_COMM_RX_OVERFLOW   | (Retains Mode)        | REACTION_LOG_ONLY                    |
+ *  | ERR_CODE_COMM_TX_OVERFLOW   | (Retains Mode)        | REACTION_LOG_ONLY                    |
+ *  | ERR_CODE_CMD_SYNTAX_ERROR   | (Retains Mode)        | REACTION_LOG_ONLY                    |
+ *  | ERR_CODE_CMD_UNKNOWN        | (Retains Mode)        | REACTION_LOG_ONLY                    |
  *  | ERR_CODE_FAILSAFE_TRIGGERED | (Retains Mode)        | REACTION_STOP_MOTION                 |
  *  | ERR_CODE_HARDWARE_FAULT     | SYSTEM_MODE_PANIC     | REACTION_SYSTEM_RESET                |
- *  | ERR_CODE_COMM_* / CMD_*     | (Retains Mode)        | REACTION_LOG_ONLY                    |
+ *  | ERR_CODE_COMM_CRC           | (Retains Mode)        | REACTION_LOG_ONLY                    |
  *  +-----------------------------+-----------------------+--------------------------------------+
  */
 

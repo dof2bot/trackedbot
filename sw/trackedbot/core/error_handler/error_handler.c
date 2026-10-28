@@ -42,17 +42,89 @@
  *  +-----------------------------+-----------------------+--------------------------------------+
  *  | Error Code                  | Transitioned Mode     | Safety Reaction Dispatched           |
  *  +-----------------------------+-----------------------+--------------------------------------+
+ *  | ERR_CODE_NONE               | (Retains Mode)        | REACTION_NONE                        |
  *  | ERR_CODE_INIT_UART          | SYSTEM_MODE_DEGRADED  | REACTION_ENTER_DEGRADED_LOCK_COMM    |
  *  | ERR_CODE_INIT_MOTORS        | SYSTEM_MODE_DEGRADED  | REACTION_ENTER_DEGRADED_LOCK_MOTION  |
- *  | ERR_CODE_INIT_TIMER/PARSER  | SYSTEM_MODE_DEGRADED  | REACTION_ENTER_DEGRADED_LOCK_MOTION  |
+ *  | ERR_CODE_INIT_TIMER         | SYSTEM_MODE_DEGRADED  | REACTION_ENTER_DEGRADED_LOCK_MOTION  |
+ *  | ERR_CODE_INIT_PARSER        | SYSTEM_MODE_DEGRADED  | REACTION_ENTER_DEGRADED_LOCK_MOTION  |
+ *  | ERR_CODE_INIT_FAILSAFE      | SYSTEM_MODE_DEGRADED  | REACTION_ENTER_DEGRADED_LOCK_MOTION  |
+ *  | ERR_CODE_COMM_RX_OVERFLOW   | (Retains Mode)        | REACTION_LOG_ONLY                    |
+ *  | ERR_CODE_COMM_TX_OVERFLOW   | (Retains Mode)        | REACTION_LOG_ONLY                    |
+ *  | ERR_CODE_CMD_SYNTAX_ERROR   | (Retains Mode)        | REACTION_LOG_ONLY                    |
+ *  | ERR_CODE_CMD_UNKNOWN        | (Retains Mode)        | REACTION_LOG_ONLY                    |
  *  | ERR_CODE_FAILSAFE_TRIGGERED | (Retains Mode)        | REACTION_STOP_MOTION                 |
  *  | ERR_CODE_HARDWARE_FAULT     | SYSTEM_MODE_PANIC     | REACTION_SYSTEM_RESET                |
- *  | ERR_CODE_COMM_* / CMD_*     | (Retains Mode)        | REACTION_LOG_ONLY                    |
+ *  | ERR_CODE_COMM_CRC           | (Retains Mode)        | REACTION_LOG_ONLY                    |
  *  +-----------------------------+-----------------------+--------------------------------------+
  */
 
 #include "error_handler.h"
 #include "progmem_compat.h"
+
+/**
+ * @brief Safety policy transition entry for error handling.
+ */
+typedef struct {
+  safety_reaction_t reaction;    /**< Safety action dispatched on error. */
+  int8_t            target_mode; /**< Transition target mode (-1 to retain current mode). */
+} error_policy_entry_t;
+
+/**
+ * @brief Safety policy matrix stored in Flash memory (PROGMEM).
+ * Directly maps each error_code_t (0..12) to its safety reaction and mode transition.
+ */
+static const error_policy_entry_t S_SAFETY_POLICY[] PROGMEM = {
+    /* ERR_CODE_NONE */
+    {REACTION_NONE, -1},
+    /* ERR_CODE_INIT_UART */
+    {REACTION_ENTER_DEGRADED_LOCK_COMM, (int8_t)SYSTEM_MODE_DEGRADED},
+    /* ERR_CODE_INIT_MOTORS */
+    {REACTION_ENTER_DEGRADED_LOCK_MOTION, (int8_t)SYSTEM_MODE_DEGRADED},
+    /* ERR_CODE_INIT_TIMER */
+    {REACTION_ENTER_DEGRADED_LOCK_MOTION, (int8_t)SYSTEM_MODE_DEGRADED},
+    /* ERR_CODE_INIT_PARSER */
+    {REACTION_ENTER_DEGRADED_LOCK_MOTION, (int8_t)SYSTEM_MODE_DEGRADED},
+    /* ERR_CODE_INIT_FAILSAFE */
+    {REACTION_ENTER_DEGRADED_LOCK_MOTION, (int8_t)SYSTEM_MODE_DEGRADED},
+    /* ERR_CODE_COMM_RX_OVERFLOW */
+    {REACTION_LOG_ONLY, -1},
+    /* ERR_CODE_COMM_TX_OVERFLOW */
+    {REACTION_LOG_ONLY, -1},
+    /* ERR_CODE_CMD_SYNTAX_ERROR */
+    {REACTION_LOG_ONLY, -1},
+    /* ERR_CODE_CMD_UNKNOWN */
+    {REACTION_LOG_ONLY, -1},
+    /* ERR_CODE_FAILSAFE_TRIGGERED */
+    {REACTION_STOP_MOTION, -1},
+    /* ERR_CODE_HARDWARE_FAULT */
+    {REACTION_SYSTEM_RESET, (int8_t)SYSTEM_MODE_PANIC},
+    /* ERR_CODE_COMM_CRC */
+    {REACTION_LOG_ONLY, -1},
+};
+
+/** System mode string lookup table stored in Flash memory (PROGMEM). */
+static const char S_MODE_STRINGS[][9] PROGMEM = {
+    "NORMAL",
+    "DEGRADED",
+    "PANIC",
+};
+
+/** Error diagnostic code string lookup table stored in Flash memory (PROGMEM). */
+static const char S_ERROR_CODE_STRINGS[][14] PROGMEM = {
+    "NONE",
+    "INIT_UART",
+    "INIT_MOTORS",
+    "INIT_TIMER",
+    "INIT_PARSER",
+    "INIT_FAILSAFE",
+    "RX_OVERFLOW",
+    "TX_OVERFLOW",
+    "CMD_SYNTAX",
+    "CMD_UNKNOWN",
+    "FAILSAFE_STOP",
+    "HW_FAULT",
+    "COMM_CRC",
+};
 
 /**
  * @brief Initialize error handler component in normal operating mode.
@@ -92,36 +164,18 @@ safety_reaction_t error_handler_report(error_handler_t *eh, error_code_t code) {
   eh->last_error = code;
   eh->error_count++;
 
-  switch (code) {
-  case ERR_CODE_INIT_UART:
-    eh->current_mode = SYSTEM_MODE_DEGRADED;
-    return REACTION_ENTER_DEGRADED_LOCK_COMM;
-
-  case ERR_CODE_INIT_MOTORS:
-  case ERR_CODE_INIT_TIMER:
-  case ERR_CODE_INIT_PARSER:
-  case ERR_CODE_INIT_FAILSAFE:
-    eh->current_mode = SYSTEM_MODE_DEGRADED;
-    return REACTION_ENTER_DEGRADED_LOCK_MOTION;
-
-  case ERR_CODE_FAILSAFE_TRIGGERED:
-    return REACTION_STOP_MOTION;
-
-  case ERR_CODE_HARDWARE_FAULT:
-    eh->current_mode = SYSTEM_MODE_PANIC;
-    return REACTION_SYSTEM_RESET;
-
-  case ERR_CODE_COMM_RX_OVERFLOW:
-  case ERR_CODE_COMM_TX_OVERFLOW:
-  case ERR_CODE_CMD_SYNTAX_ERROR:
-  case ERR_CODE_CMD_UNKNOWN:
-  case ERR_CODE_COMM_CRC:
-    return REACTION_LOG_ONLY;
-
-  case ERR_CODE_NONE:
-  default:
+  if ((uint8_t)code >= (sizeof(S_SAFETY_POLICY) / sizeof(S_SAFETY_POLICY[0]))) {
     return REACTION_NONE;
   }
+
+  safety_reaction_t reaction = (safety_reaction_t)pgm_read_byte(&S_SAFETY_POLICY[code].reaction);
+  int8_t target_mode = (int8_t)pgm_read_byte(&S_SAFETY_POLICY[code].target_mode);
+
+  if (target_mode >= 0) {
+    eh->current_mode = (system_mode_t)target_mode;
+  }
+
+  return reaction;
 }
 
 /**
@@ -198,30 +252,6 @@ bool error_handler_clear(error_handler_t *eh) {
 
   return true;
 }
-
-/** System mode string lookup table stored in Flash memory (PROGMEM). */
-static const char S_MODE_STRINGS[][9] PROGMEM = {
-    "NORMAL",
-    "DEGRADED",
-    "PANIC",
-};
-
-/** Error diagnostic code string lookup table stored in Flash memory (PROGMEM). */
-static const char S_ERROR_CODE_STRINGS[][14] PROGMEM = {
-    "NONE",
-    "INIT_UART",
-    "INIT_MOTORS",
-    "INIT_TIMER",
-    "INIT_PARSER",
-    "INIT_FAILSAFE",
-    "RX_OVERFLOW",
-    "TX_OVERFLOW",
-    "CMD_SYNTAX",
-    "CMD_UNKNOWN",
-    "FAILSAFE_STOP",
-    "HW_FAULT",
-    "COMM_CRC",
-};
 
 /**
  * @brief Convert system mode enum to human-readable ASCII string (stored in Flash).

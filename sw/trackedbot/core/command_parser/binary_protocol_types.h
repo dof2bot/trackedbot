@@ -64,10 +64,18 @@ extern "C" {
 #endif
 
 /**
- * @brief Wire-level frame framing delimiter.
+ * @brief Wire-level frame framing delimiter and structural metrics.
  */
 enum {
-  PROTOCOL_SYNC_BYTE = 0xAA /**< Frame start synchronization delimiter (170 dec). */
+  PROTOCOL_SYNC_BYTE = 0xAA, /**< Frame start synchronization delimiter (170 dec). */
+  FRAME_OFFSET_SYNC = 0,     /**< Byte offset of SYNC delimiter in frame. */
+  FRAME_OFFSET_MSG_ID = 1,   /**< Byte offset of MSG_ID in frame. */
+  FRAME_OFFSET_LEN = 2,      /**< Byte offset of payload length in frame. */
+  FRAME_OFFSET_PAYLOAD = 3,  /**< Byte offset where payload data begins. */
+  FRAME_HEADER_SIZE = 3,     /**< Total size of frame header (SYNC + MSG_ID + LEN). */
+  FRAME_CRC_SIZE = 1,        /**< Size of trailing CRC-8 checksum byte. */
+  FRAME_OVERHEAD_SIZE = 4,   /**< Total frame overhead (FRAME_HEADER_SIZE + FRAME_CRC_SIZE). */
+  FRAME_CRC_HEADER_LEN = 2   /**< Number of header bytes covered by CRC-8 (MSG_ID + LEN). */
 };
 
 /**
@@ -116,6 +124,29 @@ enum {
   PAYLOAD_LEN_STATUS = 7,     /**< Payload length for RESP_ID_STATUS (7 bytes). */
   PAYLOAD_LEN_DIAG = 9        /**< Payload length for RESP_ID_DIAG (9 bytes). */
 };
+
+/**
+ * @brief Byte offsets within RESP_ID_NACK payload (Length: 2 bytes).
+ */
+typedef enum {
+  NACK_PAYLOAD_OFFSET_CMD_ID = 0,  /**< Message ID of rejected command. */
+  NACK_PAYLOAD_OFFSET_ERR_CODE = 1 /**< Error code describing reason for rejection. */
+} protocol_nack_payload_offset_t;
+
+/**
+ * @brief Byte offsets within RESP_ID_STATUS (7 bytes) and RESP_ID_DIAG (9 bytes) payloads.
+ */
+typedef enum {
+  STATUS_PAYLOAD_OFFSET_MODE = 0,         /**< Operating mode (NORMAL, DEGRADED, PANIC). */
+  STATUS_PAYLOAD_OFFSET_LAST_ERR = 1,     /**< Last error code. */
+  STATUS_PAYLOAD_OFFSET_COUNT_HI = 2,     /**< Total error count high byte (Big-Endian). */
+  STATUS_PAYLOAD_OFFSET_COUNT_LO = 3,     /**< Total error count low byte (Big-Endian). */
+  STATUS_PAYLOAD_OFFSET_MOTION_STATE = 4, /**< Chassis motion state (IDLE, MOVING, FAILSAFE). */
+  STATUS_PAYLOAD_OFFSET_MOTION_CMD = 5,   /**< Current active motion command. */
+  STATUS_PAYLOAD_OFFSET_SPEED = 6,        /**< Current target/ramped speed setpoint. */
+  DIAG_PAYLOAD_OFFSET_FAILSAFE_FLAGS = 7, /**< Failsafe watchdog status bitmask. */
+  DIAG_PAYLOAD_OFFSET_MOTION_LOCK = 8     /**< Motion lock status (MOTION_LOCK_OFF/ON). */
+} protocol_telemetry_payload_offset_t;
 
 /**
  * @brief Bitmask flags for communication failsafe watchdog status reporting.

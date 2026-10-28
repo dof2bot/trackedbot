@@ -60,19 +60,19 @@ static bool send_frame(comm_stream_t *stream, uint8_t msg_id, const uint8_t *pay
     return false;
   }
 
-  uint8_t frame[1 + 1 + 1 + PAYLOAD_LEN_MAX + 1];
-  frame[0] = (uint8_t)PROTOCOL_SYNC_BYTE;
-  frame[1] = msg_id;
-  frame[2] = len;
+  uint8_t frame[FRAME_OVERHEAD_SIZE + PAYLOAD_LEN_MAX];
+  frame[FRAME_OFFSET_SYNC] = (uint8_t)PROTOCOL_SYNC_BYTE;
+  frame[FRAME_OFFSET_MSG_ID] = msg_id;
+  frame[FRAME_OFFSET_LEN] = len;
 
   for (uint8_t i = 0; i < len; ++i) {
-    frame[3 + i] = payload[i];
+    frame[FRAME_OFFSET_PAYLOAD + i] = payload[i];
   }
 
-  uint8_t crc = crc8_calculate(&frame[1], (uint8_t)(len + 2));
-  frame[3 + len] = crc;
+  uint8_t crc = crc8_calculate(&frame[FRAME_OFFSET_MSG_ID], (uint8_t)(len + FRAME_CRC_HEADER_LEN));
+  frame[FRAME_OFFSET_PAYLOAD + len] = crc;
 
-  return comm_write_buf(stream, frame, (uint8_t)(len + 4));
+  return comm_write_buf(stream, frame, (uint8_t)(len + FRAME_OVERHEAD_SIZE));
 }
 
 /**
@@ -95,9 +95,9 @@ bool telemetry_reporter_send_ack(comm_stream_t *stream, uint8_t cmd_id) {
  * @return bool true if all stream writes succeeded, false on failure.
  */
 bool telemetry_reporter_send_nack(comm_stream_t *stream, uint8_t cmd_id, error_code_t err_code) {
-  uint8_t payload[2];
-  payload[0] = cmd_id;
-  payload[1] = (uint8_t)err_code;
+  uint8_t payload[PAYLOAD_LEN_NACK];
+  payload[NACK_PAYLOAD_OFFSET_CMD_ID] = cmd_id;
+  payload[NACK_PAYLOAD_OFFSET_ERR_CODE] = (uint8_t)err_code;
 
   return send_frame(stream, (uint8_t)RESP_ID_NACK, payload, (uint8_t)PAYLOAD_LEN_NACK);
 }
@@ -110,6 +110,38 @@ bool telemetry_reporter_send_nack(comm_stream_t *stream, uint8_t cmd_id, error_c
  */
 bool telemetry_reporter_send_pong(comm_stream_t *stream) {
   return send_frame(stream, (uint8_t)RESP_ID_PONG, (const uint8_t *)0, (uint8_t)PAYLOAD_LEN_PONG);
+}
+
+/**
+ * @brief Populate status telemetry payload fields (7 bytes).
+ *
+ * @param payload Destination byte array (minimum PAYLOAD_LEN_STATUS bytes).
+ * @param motion Tracked motion instance (optional, may be NULL).
+ * @param eh Error handler instance (optional, may be NULL).
+ */
+static void populate_status_payload(uint8_t *payload, const tracked_motion_t *motion, const error_handler_t *eh) {
+  if (eh != (void *)0) {
+    payload[STATUS_PAYLOAD_OFFSET_MODE] = (uint8_t)error_handler_get_mode(eh);
+    payload[STATUS_PAYLOAD_OFFSET_LAST_ERR] = (uint8_t)error_handler_get_last_error(eh);
+    uint16_t count = error_handler_get_error_count(eh);
+    payload[STATUS_PAYLOAD_OFFSET_COUNT_HI] = (uint8_t)((count >> 8) & 0xFF);
+    payload[STATUS_PAYLOAD_OFFSET_COUNT_LO] = (uint8_t)(count & 0xFF);
+  } else {
+    payload[STATUS_PAYLOAD_OFFSET_MODE] = 0;
+    payload[STATUS_PAYLOAD_OFFSET_LAST_ERR] = 0;
+    payload[STATUS_PAYLOAD_OFFSET_COUNT_HI] = 0;
+    payload[STATUS_PAYLOAD_OFFSET_COUNT_LO] = 0;
+  }
+
+  if (motion != (void *)0) {
+    payload[STATUS_PAYLOAD_OFFSET_MOTION_STATE] = (uint8_t)tracked_motion_get_state(motion);
+    payload[STATUS_PAYLOAD_OFFSET_MOTION_CMD] = (uint8_t)tracked_motion_get_command(motion);
+    payload[STATUS_PAYLOAD_OFFSET_SPEED] = tracked_motion_get_speed(motion);
+  } else {
+    payload[STATUS_PAYLOAD_OFFSET_MOTION_STATE] = 0;
+    payload[STATUS_PAYLOAD_OFFSET_MOTION_CMD] = 0;
+    payload[STATUS_PAYLOAD_OFFSET_SPEED] = 0;
+  }
 }
 
 /**
@@ -129,30 +161,8 @@ bool telemetry_reporter_send_pong(comm_stream_t *stream) {
  * @return bool true if all stream writes succeeded, false on failure.
  */
 bool telemetry_reporter_send_status(comm_stream_t *stream, const tracked_motion_t *motion, const error_handler_t *eh) {
-  uint8_t payload[7];
-
-  if (eh != (void *)0) {
-    payload[0] = (uint8_t)error_handler_get_mode(eh);
-    payload[1] = (uint8_t)error_handler_get_last_error(eh);
-    uint16_t count = error_handler_get_error_count(eh);
-    payload[2] = (uint8_t)((count >> 8) & 0xFF);
-    payload[3] = (uint8_t)(count & 0xFF);
-  } else {
-    payload[0] = 0;
-    payload[1] = 0;
-    payload[2] = 0;
-    payload[3] = 0;
-  }
-
-  if (motion != (void *)0) {
-    payload[4] = (uint8_t)tracked_motion_get_state(motion);
-    payload[5] = (uint8_t)tracked_motion_get_command(motion);
-    payload[6] = tracked_motion_get_speed(motion);
-  } else {
-    payload[4] = 0;
-    payload[5] = 0;
-    payload[6] = 0;
-  }
+  uint8_t payload[PAYLOAD_LEN_STATUS];
+  populate_status_payload(payload, motion, eh);
 
   return send_frame(stream, (uint8_t)RESP_ID_STATUS, payload, (uint8_t)PAYLOAD_LEN_STATUS);
 }
@@ -177,30 +187,8 @@ bool telemetry_reporter_send_diag(
     const error_handler_t *eh,
     const failsafe_watchdog_t *failsafe
 ) {
-  uint8_t payload[9];
-
-  if (eh != (void *)0) {
-    payload[0] = (uint8_t)error_handler_get_mode(eh);
-    payload[1] = (uint8_t)error_handler_get_last_error(eh);
-    uint16_t count = error_handler_get_error_count(eh);
-    payload[2] = (uint8_t)((count >> 8) & 0xFF);
-    payload[3] = (uint8_t)(count & 0xFF);
-  } else {
-    payload[0] = 0;
-    payload[1] = 0;
-    payload[2] = 0;
-    payload[3] = 0;
-  }
-
-  if (motion != (void *)0) {
-    payload[4] = (uint8_t)tracked_motion_get_state(motion);
-    payload[5] = (uint8_t)tracked_motion_get_command(motion);
-    payload[6] = tracked_motion_get_speed(motion);
-  } else {
-    payload[4] = 0;
-    payload[5] = 0;
-    payload[6] = 0;
-  }
+  uint8_t payload[PAYLOAD_LEN_DIAG];
+  populate_status_payload(payload, motion, eh);
 
   uint8_t flags = 0;
   if (failsafe != (void *)0) {
@@ -211,12 +199,12 @@ bool telemetry_reporter_send_diag(
       flags |= (uint8_t)FAILSAFE_FLAG_TRIGGERED;
     }
   }
-  payload[7] = flags;
+  payload[DIAG_PAYLOAD_OFFSET_FAILSAFE_FLAGS] = flags;
 
   if (eh != (void *)0 && !error_handler_is_motion_allowed(eh)) {
-    payload[8] = (uint8_t)MOTION_LOCK_ON;
+    payload[DIAG_PAYLOAD_OFFSET_MOTION_LOCK] = (uint8_t)MOTION_LOCK_ON;
   } else {
-    payload[8] = (uint8_t)MOTION_LOCK_OFF;
+    payload[DIAG_PAYLOAD_OFFSET_MOTION_LOCK] = (uint8_t)MOTION_LOCK_OFF;
   }
 
   return send_frame(stream, (uint8_t)RESP_ID_DIAG, payload, (uint8_t)PAYLOAD_LEN_DIAG);

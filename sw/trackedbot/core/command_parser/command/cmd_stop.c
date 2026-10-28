@@ -23,11 +23,7 @@
 #include "telemetry_reporter.h"
 
 bool cmd_stop_execute(
-    tracked_motion_t *motion,
-    comm_stream_t *stream,
-    error_handler_t *eh,
-    uint8_t msg_id,
-    uint8_t len
+    tracked_motion_t *motion, comm_stream_t *stream, error_handler_t *eh, uint8_t msg_id, uint8_t len
 ) {
   if (motion == (void *)0 || stream == (void *)0) {
     return false;
@@ -37,9 +33,11 @@ bool cmd_stop_execute(
     if (eh != (void *)0) {
       (void)error_handler_report(eh, ERR_CODE_CMD_SYNTAX_ERROR);
     }
+
     return telemetry_reporter_send_nack(stream, msg_id, ERR_CODE_CMD_SYNTAX_ERROR);
   }
 
   (void)tracked_motion_stop(motion);
+
   return telemetry_reporter_send_ack(stream, msg_id);
 }

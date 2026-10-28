@@ -1,0 +1,60 @@
+<!-- Mermaid.js integration for rendering diagrams on GitHub Pages -->
+<style>
+  .mermaid {
+    text-align: center;
+    margin: 1.5rem 0;
+    overflow-x: auto;
+  }
+</style>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({
+    startOnLoad: false,
+    theme: 'default',
+    securityLevel: 'loose'
+  });
+
+  window.addEventListener('DOMContentLoaded', async () => {
+    const candidates = document.querySelectorAll(
+      'pre code.language-mermaid, div.language-mermaid pre code, div.language-mermaid pre, pre.language-mermaid, div.highlighter-rouge pre code'
+    );
+
+    const blocksToRender = [];
+
+    candidates.forEach((el) => {
+      const text = el.textContent.trim();
+      const isMermaid = el.classList.contains('language-mermaid') ||
+                        el.parentElement.classList.contains('language-mermaid') ||
+                        (el.closest('.language-mermaid') !== null) ||
+                        text.startsWith('graph ') ||
+                        text.startsWith('graph TD') ||
+                        text.startsWith('graph LR') ||
+                        text.startsWith('sequenceDiagram') ||
+                        text.startsWith('classDiagram') ||
+                        text.startsWith('stateDiagram');
+
+      if (!isMermaid) {
+        return;
+      }
+
+      const container = el.closest('.language-mermaid') || el.closest('.highlighter-rouge') || el.closest('pre') || el;
+      if (container.dataset.mermaidProcessed) {
+        return;
+      }
+      container.dataset.mermaidProcessed = 'true';
+
+      const mermaidDiv = document.createElement('div');
+      mermaidDiv.className = 'mermaid';
+      mermaidDiv.textContent = text;
+
+      container.replaceWith(mermaidDiv);
+      blocksToRender.push(mermaidDiv);
+    });
+
+    if (blocksToRender.length > 0) {
+      await mermaid.run({
+        nodes: blocksToRender
+      });
+    }
+  });
+</script>

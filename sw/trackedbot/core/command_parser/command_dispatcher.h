@@ -22,18 +22,18 @@
  * and dispatches corresponding telemetry response packets.
  *
  * Command Dispatch Table:
- *  +-------------------+--------+----------+-----------------------+--------------------------+
- *  | Command Name      | MSG_ID | Payload  | Subsystem Target      | Response Dispatched      |
- *  +-------------------+--------+----------+-----------------------+--------------------------+
- *  | CMD_ID_MOTION     | 0x01   | 1 Byte   | tracked_motion_set_cmd| RESP_ACK / RESP_NACK     |
- *  | CMD_ID_SET_SPEED  | 0x02   | 1 Byte   | tracked_motion_set_spd| RESP_ACK / RESP_NACK     |
- *  | CMD_ID_STOP       | 0x03   | 0 Bytes  | tracked_motion_stop   | RESP_ACK / RESP_NACK     |
- *  | CMD_ID_PING       | 0x04   | 0 Bytes  | Keepalive heartbeat   | RESP_PONG                |
- *  | CMD_ID_GET_STATUS | 0x10   | 0 Bytes  | Status query          | RESP_STATUS (7 Bytes)    |
- *  | CMD_ID_GET_DIAG   | 0x11   | 0 Bytes  | Diagnostic query      | RESP_DIAG (9 Bytes)      |
- *  | CMD_ID_ERR_CLEAR  | 0x20   | 0 Bytes  | error_handler_clear   | RESP_ACK / RESP_NACK     |
- *  | Unknown / Invalid | *      | *        | Error reporting       | RESP_NACK (ERR_UNKNOWN)  |
- *  +-------------------+--------+----------+-----------------------+--------------------------+
+ *  +-------------------+--------+----------+-------------------------------------+-----------------------------+
+ *  | Command Name      | MSG_ID | Payload  | Subsystem Target / Operation        | Response Dispatched         |
+ *  +-------------------+--------+----------+-------------------------------------+-----------------------------+
+ *  | CMD_ID_MOTION     | 0x01   | 1 Byte   | tracked_motion_set_cmd (trajectory) | RESP_ID_ACK / RESP_ID_NACK  |
+ *  | CMD_ID_SET_SPEED  | 0x02   | 1 Byte   | tracked_motion_set_spd (PWM speed)  | RESP_ID_ACK / RESP_ID_NACK  |
+ *  | CMD_ID_STOP       | 0x03   | 0 Bytes  | tracked_motion_stop (kinematic stop)| RESP_ID_ACK / RESP_ID_NACK  |
+ *  | CMD_ID_PING       | 0x04   | 0 Bytes  | Keepalive heartbeat query           | RESP_ID_PONG                |
+ *  | CMD_ID_GET_STATUS | 0x10   | 0 Bytes  | Telemetry consolidated status query | RESP_ID_STATUS (7 Bytes)    |
+ *  | CMD_ID_GET_DIAG   | 0x11   | 0 Bytes  | Diagnostic full system query        | RESP_ID_DIAG (9 Bytes)      |
+ *  | CMD_ID_ERR_CLEAR  | 0x12   | 0 Bytes  | error_handler_clear (clear faults)  | RESP_ID_ACK / RESP_ID_NACK  |
+ *  | Unknown / Invalid | *      | *        | Error reporting (ERR_CMD_UNKNOWN)   | RESP_ID_NACK (ERR_CMD_UNKN) |
+ *  +-------------------+--------+----------+-------------------------------------+-----------------------------+
  */
 
 #pragma once

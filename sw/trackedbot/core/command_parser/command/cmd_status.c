@@ -21,11 +21,7 @@
 #include "cmd_status.h"
 #include "telemetry_reporter.h"
 
-bool cmd_status_execute(
-    comm_stream_t *stream,
-    const tracked_motion_t *motion,
-    const error_handler_t *eh
-) {
+bool cmd_status_execute(comm_stream_t *stream, const tracked_motion_t *motion, const error_handler_t *eh) {
   if (stream == (void *)0 || motion == (void *)0) {
     return false;
   }

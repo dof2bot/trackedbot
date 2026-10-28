@@ -22,18 +22,18 @@
  * opcodes.
  *
  * Command Dispatch Table:
- *  +-------------------+--------+----------+-----------------------+--------------------------+
- *  | Command Name      | MSG_ID | Payload  | Subsystem Target      | Response Dispatched      |
- *  +-------------------+--------+----------+-----------------------+--------------------------+
- *  | CMD_ID_MOTION     | 0x01   | 1 Byte   | cmd_motion_execute    | RESP_ACK / RESP_NACK     |
- *  | CMD_ID_SET_SPEED  | 0x02   | 1 Byte   | cmd_speed_execute     | RESP_ACK / RESP_NACK     |
- *  | CMD_ID_STOP       | 0x03   | 0 Bytes  | cmd_stop_execute      | RESP_ACK / RESP_NACK     |
- *  | CMD_ID_PING       | 0x04   | 0 Bytes  | cmd_ping_execute      | RESP_PONG                |
- *  | CMD_ID_GET_STATUS | 0x10   | 0 Bytes  | cmd_status_execute    | RESP_STATUS (7 Bytes)    |
- *  | CMD_ID_GET_DIAG   | 0x11   | 0 Bytes  | cmd_diag_execute      | RESP_DIAG (9 Bytes)      |
- *  | CMD_ID_ERR_CLEAR  | 0x12   | 0 Bytes  | cmd_err_clear_execute | RESP_ACK / RESP_NACK     |
- *  | Unknown / Invalid | *      | *        | Error reporting       | RESP_NACK (ERR_UNKNOWN)  |
- *  +-------------------+--------+----------+-----------------------+--------------------------+
+ *  +-------------------+--------+----------+-------------------------------------+-----------------------------+
+ *  | Command Name      | MSG_ID | Payload  | Subsystem Target / Operation        | Response Dispatched         |
+ *  +-------------------+--------+----------+-------------------------------------+-----------------------------+
+ *  | CMD_ID_MOTION     | 0x01   | 1 Byte   | cmd_motion_execute (set trajectory) | RESP_ID_ACK / RESP_ID_NACK  |
+ *  | CMD_ID_SET_SPEED  | 0x02   | 1 Byte   | cmd_speed_execute (set drive PWM)   | RESP_ID_ACK / RESP_ID_NACK  |
+ *  | CMD_ID_STOP       | 0x03   | 0 Bytes  | cmd_stop_execute (kinematic stop)   | RESP_ID_ACK / RESP_ID_NACK  |
+ *  | CMD_ID_PING       | 0x04   | 0 Bytes  | cmd_ping_execute (heartbeat query)  | RESP_ID_PONG                |
+ *  | CMD_ID_GET_STATUS | 0x10   | 0 Bytes  | cmd_status_execute (telemetry query)| RESP_ID_STATUS (7 Bytes)    |
+ *  | CMD_ID_GET_DIAG   | 0x11   | 0 Bytes  | cmd_diag_execute (diagnostic query) | RESP_ID_DIAG (9 Bytes)      |
+ *  | CMD_ID_ERR_CLEAR  | 0x12   | 0 Bytes  | cmd_err_clear_execute (clear faults)| RESP_ID_ACK / RESP_ID_NACK  |
+ *  | Unknown / Invalid | *      | *        | error_handler_report (unknown cmd)  | RESP_ID_NACK (ERR_CMD_UNKN) |
+ *  +-------------------+--------+----------+-------------------------------------+-----------------------------+
  */
 
 #include "command_dispatcher.h"
