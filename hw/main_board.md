@@ -169,43 +169,59 @@ When flashing an updated Wi-Fi firmware image or Arduino ESP8266 sketch:
 
 ```mermaid
 flowchart TD
-    subgraph Host ["Development PC / Host"]
-        USB["USB Host Interface"]
+    subgraph Host ["<b>Development PC / Host</b>"]
+        USB["<b>USB Host Interface</b><br/>Type-B Connector"]
     end
 
-    subgraph Network ["Wireless Network"]
-        WIFI["Wi-Fi 802.11 b/g/n Client"]
+    subgraph Network ["<b>Wireless Network</b>"]
+        WIFI["<b>Wi-Fi 802.11 b/g/n Client</b><br/>TCP/UDP Sockets"]
     end
 
-    subgraph UnoBoard ["TZT Uno WiFi R3 Main Board"]
+    subgraph UnoBoard ["<b>TZT Uno WiFi R3 Main Board</b>"]
         direction TB
 
         subgraph CommLayer ["Serial Communications & Multiplexing"]
-            CH340G["CH340G<br/>(USB-to-UART Bridge)"]
-            DIP{"8-Position DIP Switch<br/>(UART Multiplexer)"}
-            ESP["ESP8266EX<br/>(Wi-Fi SoC, 32Mb Flash)"]
+            CH340G["<b>CH340G Bridge</b><br/>USB-to-UART Converter"]
+            DIP{"<b>8-Pos DIP Switch</b><br/>UART Route Selector"}
+            ESP["<b>ESP8266EX SoC</b><br/>Wi-Fi Coprocessor (80 MHz)"]
         end
 
-        ATMEGA["ATmega328P<br/>(Primary Motion MCU, 16 MHz)"]
+        ATMEGA["<b>ATmega328P MCU Core</b><br/>Primary Real-Time Motion Engine (16 MHz)"]
 
         CH340G <-->|"UART TX/RX"| DIP
         ESP <-->|"UART TX/RX"| DIP
         DIP <-->|"Hardware USART (D0/RX, D1/TX)"| ATMEGA
     end
 
-    subgraph MotorShield ["L293D Motor Driver Shield"]
+    subgraph MotorShield ["<b>L293D Motor Driver Shield</b>"]
         direction TB
-        L293D_CTRL["74HC595 Shift Register (Direction Latch)"]
-        L293D_DRV["Dual L293D H-Bridges (IC1, IC2)"]
+        L293D_CTRL["<b>74HC595 Shift Register</b><br/>Direction Multiplexer (Q0..Q7)"]
+        L293D_DRV["<b>Dual L293D H-Bridges</b><br/>Motor Driver ICs (IC1, IC2)"]
         L293D_CTRL --> L293D_DRV
     end
 
     USB ==>|"USB Cable"| CH340G
     WIFI <==>|"802.11 b/g/n RF"| ESP
 
-    ATMEGA -->|"PWM D5/D6 (Speed Control)"| L293D_DRV
-    ATMEGA -->|"SPI Bit-Bang D4/D7/D8/D12"| L293D_CTRL
+    ATMEGA -->|"Fast PWM D6/D11 (Speed Control)"| L293D_DRV
+    ATMEGA -->|"Direction Bus D4/D7/D8/D12"| L293D_CTRL
     ATMEGA -.->|"ADC A0..A5 Breakout"| MotorShield
+
+    classDef hostStyle fill:#0f766e,stroke:#14b8a6,stroke-width:2px,color:#ffffff;
+    classDef commStyle fill:#312e81,stroke:#818cf8,stroke-width:2px,color:#ffffff;
+    classDef mcuStyle fill:#0c4a6e,stroke:#38bdf8,stroke-width:2px,color:#ffffff;
+    classDef shieldStyle fill:#831843,stroke:#f472b6,stroke-width:2px,color:#ffffff;
+
+    class USB,WIFI hostStyle;
+    class CH340G,DIP,ESP commStyle;
+    class ATMEGA mcuStyle;
+    class L293D_CTRL,L293D_DRV shieldStyle;
+
+    style Host fill:none,stroke:#14b8a6,stroke-width:2px,stroke-dasharray: 4 4
+    style Network fill:none,stroke:#14b8a6,stroke-width:2px,stroke-dasharray: 4 4
+    style UnoBoard fill:none,stroke:#38bdf8,stroke-width:2px,stroke-dasharray: 4 4
+    style CommLayer fill:none,stroke:#818cf8,stroke-width:1px
+    style MotorShield fill:none,stroke:#f472b6,stroke-width:2px,stroke-dasharray: 4 4
 ```
 
 

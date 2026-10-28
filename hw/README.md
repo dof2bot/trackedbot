@@ -21,38 +21,38 @@ The **tracked_bot** platform implements a modular dual-processor computing archi
 
 ```mermaid
 flowchart TD
-    CLIENT["Remote Wi-Fi Client<br/>(PC / Smartphone / ROS Node)"]
+    CLIENT["<b>Remote Wi-Fi Client</b><br/>PC / Smartphone / ROS Node"]
 
-    subgraph MainBoard ["Main Controller Board: TZT Uno WiFi R3"]
+    subgraph MainBoard ["<b>Main Controller Board: TZT Uno WiFi R3</b>"]
         direction TB
 
         subgraph CommMultiplex ["Communications & DIP Multiplexing"]
-            CH340G["CH340G<br/>(USB-to-UART)"]
-            DIP{"8-Position DIP Switch<br/>(UART Route)"}
-            ESP["ESP8266EX<br/>(Wi-Fi Coprocessor)"]
+            CH340G["<b>CH340G</b><br/>USB-to-UART"]
+            DIP{"<b>8-Pos DIP Switch</b><br/>UART Route Selection"}
+            ESP["<b>ESP8266EX</b><br/>Wi-Fi Coprocessor"]
         end
 
-        ATMEGA["ATmega328P<br/>(Primary Motion MCU Core, 16 MHz)"]
+        ATMEGA["<b>ATmega328P MCU Core</b><br/>Primary Real-Time Motion Engine (16 MHz)"]
 
         CH340G <-->|"Serial Lines"| DIP
         ESP <-->|"Serial Lines"| DIP
         DIP <-->|"Serial UART (D0/RX, D1/TX)"| ATMEGA
     end
 
-    subgraph Shield ["Motor Driver Shield: L293D"]
+    subgraph Shield ["<b>Motor Driver Shield: L293D</b>"]
         direction TB
-        SHIFT["74HC595<br/>8-Bit Shift Register<br/>(Direction Demux Q0..Q7)"]
-        IC1["L293D IC1<br/>Dual H-Bridge Driver<br/>(Right Track M1)"]
-        IC2["L293D IC2<br/>Dual H-Bridge Driver<br/>(Left Track M3)"]
+        SHIFT["<b>74HC595</b><br/>8-Bit Shift Register<br/>Direction Demux Q0..Q7"]
+        IC1["<b>L293D IC1</b><br/>Dual H-Bridge Driver<br/>Right Track M1"]
+        IC2["<b>L293D IC2</b><br/>Dual H-Bridge Driver<br/>Left Track M3"]
 
         SHIFT ==>|"Direction Control Bits"| IC1
         SHIFT ==>|"Direction Control Bits"| IC2
     end
 
-    subgraph Chassis ["Locomotion Platform: T101 Aluminum Chassis"]
-        MOTOR_R["Right Track DC Geared Motor (M1)"]
-        MOTOR_L["Left Track DC Geared Motor (M3)"]
-        TRACKS["Modular Rubber/Plastic Caterpillar Tracks"]
+    subgraph Chassis ["<b>Locomotion Platform: T101 Aluminum Chassis</b>"]
+        MOTOR_R["<b>Right Track DC Gearmotor</b><br/>Channel M1"]
+        MOTOR_L["<b>Left Track DC Gearmotor</b><br/>Channel M3"]
+        TRACKS["<b>Modular Caterpillar Tracks</b><br/>POM Interlocking Links"]
 
         MOTOR_R --> TRACKS
         MOTOR_L --> TRACKS
@@ -61,11 +61,28 @@ flowchart TD
     CLIENT ==>|"IEEE 802.11 b/g/n (UDP/TCP Frames)"| ESP
 
     ATMEGA -->|"Fast PWM (D6/OC0A Left, D11/OC2A Right)"| IC2 & IC1
-    ATMEGA -->|"74HC595 Shift Bus (D4/CLK, D7/EN, D8/SER, D12/LATCH)"| SHIFT
+    ATMEGA -->|"74HC595 Shift Bus (D4, D7, D8, D12)"| SHIFT
     ATMEGA -.->|"Sensors & ADC Bus (A0..A5, D2/INT0)"| Shield
 
     IC1 ==>|"PWM Drive (M1)"| MOTOR_R
     IC2 ==>|"PWM Drive (M3)"| MOTOR_L
+
+    classDef clientStyle fill:#0f766e,stroke:#14b8a6,stroke-width:2px,color:#ffffff;
+    classDef commStyle fill:#312e81,stroke:#818cf8,stroke-width:2px,color:#ffffff;
+    classDef mcuStyle fill:#0c4a6e,stroke:#38bdf8,stroke-width:2px,color:#ffffff;
+    classDef driverStyle fill:#831843,stroke:#f472b6,stroke-width:2px,color:#ffffff;
+    classDef motorStyle fill:#701a75,stroke:#e879f9,stroke-width:2px,color:#ffffff;
+
+    class CLIENT clientStyle;
+    class CH340G,DIP,ESP commStyle;
+    class ATMEGA mcuStyle;
+    class SHIFT,IC1,IC2 driverStyle;
+    class MOTOR_R,MOTOR_L,TRACKS motorStyle;
+
+    style MainBoard fill:none,stroke:#38bdf8,stroke-width:2px,stroke-dasharray: 4 4
+    style CommMultiplex fill:none,stroke:#818cf8,stroke-width:1px
+    style Shield fill:none,stroke:#f472b6,stroke-width:2px,stroke-dasharray: 4 4
+    style Chassis fill:none,stroke:#e879f9,stroke-width:2px,stroke-dasharray: 4 4
 ```
 
 ---

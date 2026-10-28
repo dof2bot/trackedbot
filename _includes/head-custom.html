@@ -8,9 +8,10 @@
 </style>
 <script type="module">
   import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   mermaid.initialize({
     startOnLoad: false,
-    theme: 'default',
+    theme: prefersDark ? 'dark' : 'default',
     securityLevel: 'loose'
   });
 
@@ -26,6 +27,7 @@
       const isMermaid = el.classList.contains('language-mermaid') ||
                         el.parentElement.classList.contains('language-mermaid') ||
                         (el.closest('.language-mermaid') !== null) ||
+                        text.startsWith('flowchart') ||
                         text.startsWith('graph ') ||
                         text.startsWith('graph TD') ||
                         text.startsWith('graph LR') ||

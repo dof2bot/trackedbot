@@ -72,47 +72,47 @@ The following ASCII schematic illustrates the physical top-down layout and compo
 
 ```mermaid
 flowchart TD
-    subgraph Front ["FRONT (Obstacle Approach Side)"]
+    subgraph Front ["<b>FRONT (Obstacle Approach Side)</b>"]
         direction LR
-        IDLER_L["Left Bearing Idler<br/>(Dual Ball Bearings + Flange)"]
-        APPROACH["Approach Clearance (~18 mm)"]
-        IDLER_R["Right Bearing Idler<br/>(Dual Ball Bearings + Flange)"]
+        IDLER_L["<b>Left Bearing Idler</b><br/>Dual Ball Bearings + Flange"]
+        APPROACH["<b>Approach Clearance</b><br/>~18 mm Ground Clearance"]
+        IDLER_R["<b>Right Bearing Idler</b><br/>Dual Ball Bearings + Flange"]
     end
 
-    subgraph ChassisDeck ["T101 Top Equipment Deck (2.0 mm 6061 Aluminum)"]
+    subgraph ChassisDeck ["<b>T101 Top Equipment Deck (2.0 mm Aluminum)</b>"]
         direction TB
 
         subgraph UpperSlots ["Accessory Mounts (Front)"]
-            SLOT1["Mounting Slot 1 (4 x 35 mm)"]
-            SLOT2["Mounting Slot 2 (4 x 35 mm)"]
+            SLOT1["<b>Mounting Slot 1</b><br/>4 x 35 mm"]
+            SLOT2["<b>Mounting Slot 2</b><br/>4 x 35 mm"]
         end
 
         subgraph ElectronicsBay ["Electronics Mounting Pattern"]
-            STANDOFFS["M3 Controller Standoff Pattern<br/>(53.3 mm x 27.9 mm Arduino Uno Footprint)"]
-            WIRE_PORT["Central Wire Port (18 mm)<br/>Vertical Wiring Harness Pass-Through"]
+            STANDOFFS["<b>M3 Controller Standoffs</b><br/>53.3 mm x 27.9 mm Uno Pitch"]
+            WIRE_PORT["<b>Central Wire Port</b><br/>Ø 18 mm Pass-Through"]
         end
 
         subgraph LowerSlots ["Accessory Mounts (Rear)"]
-            SLOT3["Mounting Slot 3 (4 x 35 mm)"]
-            SLOT4["Mounting Slot 4 (4 x 35 mm)"]
+            SLOT3["<b>Mounting Slot 3</b><br/>4 x 35 mm"]
+            SLOT4["<b>Mounting Slot 4</b><br/>4 x 35 mm"]
         end
     end
 
-    subgraph InternalBay ["Internal Lower Equipment Bay (Below Deck)"]
-        MOTOR1["DC Metal Gearmotor 1 (Right Track)"]
-        BATTERY["Low-CG Battery Bay (2S Li-Ion / LiPo)"]
-        MOTOR2["DC Metal Gearmotor 2 (Left Track)"]
+    subgraph InternalBay ["<b>Internal Lower Bay (Below Deck)</b>"]
+        MOTOR1["<b>DC Gearmotor 1</b><br/>Right Track Drive"]
+        BATTERY["<b>Low-CG Battery Bay</b><br/>2S Li-Ion / LiPo Pack"]
+        MOTOR2["<b>DC Gearmotor 2</b><br/>Left Track Drive"]
     end
 
-    subgraph Rear ["REAR (Drive Sprocket Side)"]
+    subgraph Rear ["<b>REAR (Motor Drive Side)</b>"]
         direction LR
-        SPROCKET_L["Left Toothed Drive Sprocket<br/>(Keyed to Motor D-Shaft)"]
-        SPROCKET_R["Right Toothed Drive Sprocket<br/>(Keyed to Motor D-Shaft)"]
+        SPROCKET_L["<b>Left Drive Sprocket</b><br/>Keyed Aluminum Teeth"]
+        SPROCKET_R["<b>Right Drive Sprocket</b><br/>Keyed Aluminum Teeth"]
     end
 
-    subgraph Tracks ["Differential Track Belts"]
-        TRACK_L["Left Track: Interlocking POM Links"]
-        TRACK_R["Right Track: Interlocking POM Links"]
+    subgraph Tracks ["<b>Differential Track Belts</b>"]
+        TRACK_L["<b>Left POM Track</b><br/>Interlocking Links"]
+        TRACK_R["<b>Right POM Track</b><br/>Interlocking Links"]
     end
 
     IDLER_L --- TRACK_L --- SPROCKET_L
@@ -121,6 +121,27 @@ flowchart TD
     Front --> ChassisDeck
     ChassisDeck --> InternalBay
     InternalBay --> Rear
+
+    classDef wheelStyle fill:#1e293b,stroke:#94a3b8,stroke-width:2px,color:#ffffff;
+    classDef slotStyle fill:#0f766e,stroke:#2dd4bf,stroke-width:2px,color:#ffffff;
+    classDef elecStyle fill:#1e3a8a,stroke:#60a5fa,stroke-width:2px,color:#ffffff;
+    classDef motorStyle fill:#831843,stroke:#f472b6,stroke-width:2px,color:#ffffff;
+    classDef trackStyle fill:#4c1d95,stroke:#a78bfa,stroke-width:2px,color:#ffffff;
+
+    class IDLER_L,IDLER_R,APPROACH,SPROCKET_L,SPROCKET_R wheelStyle;
+    class SLOT1,SLOT2,SLOT3,SLOT4 slotStyle;
+    class STANDOFFS,WIRE_PORT elecStyle;
+    class MOTOR1,BATTERY,MOTOR2 motorStyle;
+    class TRACK_L,TRACK_R trackStyle;
+
+    style Front fill:none,stroke:#94a3b8,stroke-width:2px,stroke-dasharray: 4 4
+    style ChassisDeck fill:none,stroke:#60a5fa,stroke-width:2px,stroke-dasharray: 4 4
+    style UpperSlots fill:none,stroke:#2dd4bf,stroke-width:1px
+    style ElectronicsBay fill:none,stroke:#60a5fa,stroke-width:1px
+    style LowerSlots fill:none,stroke:#2dd4bf,stroke-width:1px
+    style InternalBay fill:none,stroke:#f472b6,stroke-width:2px,stroke-dasharray: 4 4
+    style Rear fill:none,stroke:#94a3b8,stroke-width:2px,stroke-dasharray: 4 4
+    style Tracks fill:none,stroke:#a78bfa,stroke-width:2px,stroke-dasharray: 4 4
 ```
 
 ---
@@ -151,32 +172,40 @@ Differential tracked locomotion relies on differing track velocities ($v_L$ and 
 
 ```mermaid
 flowchart TD
-    subgraph CHASSIS ["Differential Drive Platform (Track Gauge W = 125 mm)"]
+    subgraph CHASSIS ["<b>Differential Drive Platform (Track Gauge W = 125 mm)</b>"]
         direction LR
-        subgraph LEFT_SIDE ["Left Drive Track"]
-            TL["TRACK LEFT<br/>(Motor 3, D6 PWM)"] --> VL["Velocity: v_L"]
+        subgraph LEFT_SIDE ["<b>Left Drive System</b>"]
+            TL["<b>TRACK LEFT</b><br/>Motor 3 (D6 PWM)"] --> VL["<b>Linear Velocity: v_L</b>"]
         end
 
         TL <-->|"Track Gauge W = 125 mm"| TR
 
-        subgraph RIGHT_SIDE ["Right Drive Track"]
-            TR["TRACK RIGHT<br/>(Motor 1, D11 PWM)"] --> VR["Velocity: v_R"]
+        subgraph RIGHT_SIDE ["<b>Right Drive System</b>"]
+            TR["<b>TRACK RIGHT</b><br/>Motor 1 (D11 PWM)"] --> VR["<b>Linear Velocity: v_R</b>"]
         end
     end
 
-    subgraph KINEMATICS ["Kinematic Equations of Motion"]
+    subgraph KINEMATICS ["<b>Kinematic Equations of Motion</b>"]
         direction TB
-        V_LIN["Linear Forward Velocity:<br/>v = (v_R + v_L) / 2"]
-        OMEGA["Angular Turn Rate:<br/>ω = (v_R - v_L) / W"]
-        RADIUS["Steering Arc Radius:<br/>R = (W / 2) · (v_R + v_L) / (v_R - v_L)"]
+        V_LIN["<b>Linear Forward Velocity</b><br/><code>v = (v_R + v_L) / 2</code>"]
+        OMEGA["<b>Angular Turn Rate</b><br/><code>ω = (v_R - v_L) / W</code>"]
+        RADIUS["<b>Steering Arc Radius</b><br/><code>R = (W / 2) · (v_R + v_L) / (v_R - v_L)</code>"]
     end
 
     CHASSIS --> KINEMATICS
 
-    style CHASSIS fill:#e1f5fe,stroke:#0288d1,stroke-width:2px
-    style LEFT_SIDE fill:#ffffff,stroke:#03a9f4,stroke-width:1px
-    style RIGHT_SIDE fill:#ffffff,stroke:#03a9f4,stroke-width:1px
-    style KINEMATICS fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    classDef trackStyle fill:#065f46,stroke:#34d399,stroke-width:2px,color:#ffffff;
+    classDef velStyle fill:#0284c7,stroke:#38bdf8,stroke-width:2px,color:#ffffff;
+    classDef eqStyle fill:#4338ca,stroke:#818cf8,stroke-width:2px,color:#ffffff;
+
+    class TL,TR trackStyle;
+    class VL,VR velStyle;
+    class V_LIN,OMEGA,RADIUS eqStyle;
+
+    style CHASSIS fill:none,stroke:#38bdf8,stroke-width:2px,stroke-dasharray: 4 4
+    style LEFT_SIDE fill:none,stroke:#34d399,stroke-width:1px
+    style RIGHT_SIDE fill:none,stroke:#34d399,stroke-width:1px
+    style KINEMATICS fill:none,stroke:#818cf8,stroke-width:2px,stroke-dasharray: 4 4
 ```
 
 - **Straight Forward/Reverse:** $v_L = v_R$ (Both tracks driven at equal PWM duty cycles).

@@ -29,19 +29,24 @@ flowchart LR
 
     SYNC --- ID --- LEN --- PAYLOAD --- CRC
 
-    subgraph CRC_SCOPE ["CRC-8 Calculation Scope (Polynomial 0x07)"]
+    subgraph CRC_SCOPE ["<b>CRC-8 Calculation Scope (Polynomial 0x07)</b>"]
         direction LR
         ID
         LEN
         PAYLOAD
     end
 
-    style SYNC fill:#ffebee,stroke:#c62828,stroke-width:2px
-    style ID fill:#e8eaf6,stroke:#283593,stroke-width:2px
-    style LEN fill:#e8eaf6,stroke:#283593,stroke-width:2px
-    style PAYLOAD fill:#e1f5fe,stroke:#0288d1,stroke-width:2px
-    style CRC fill:#fff3e0,stroke:#ef6c00,stroke-width:2px
-    style CRC_SCOPE fill:#f5f5f5,stroke:#757575,stroke-width:1px,stroke-dasharray: 5 5
+    classDef syncStyle fill:#991b1b,stroke:#f87171,stroke-width:2px,color:#ffffff;
+    classDef hdrStyle fill:#312e81,stroke:#818cf8,stroke-width:2px,color:#ffffff;
+    classDef payloadStyle fill:#0369a1,stroke:#38bdf8,stroke-width:2px,color:#ffffff;
+    classDef crcStyle fill:#7c2d12,stroke:#fb923c,stroke-width:2px,color:#ffffff;
+
+    class SYNC syncStyle;
+    class ID,LEN hdrStyle;
+    class PAYLOAD payloadStyle;
+    class CRC crcStyle;
+
+    style CRC_SCOPE fill:none,stroke:#fb923c,stroke-width:2px,stroke-dasharray: 4 4
 ```
 
 | Field | Length | Value / Range | Description |
