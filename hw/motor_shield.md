@@ -114,14 +114,40 @@ The shield occupies digital pins **D3 through D12**. Digital pins **D0, D1, D2, 
 The 74HC595 shift register deserializes an 8-bit word clocked in from the microcontroller into the 8 direction control signals feeding the L293D H-bridges.
 
 ### Subsystem Topology:
-```
-  ATmega328P (4 pins)              74HC595 (8 outputs)              L293D H-Bridges
- +--------------------+            +-------------------+            +---------------+
- | Arduino D4  (PD4)  |--- CLK --->| SH_CP (Shift Clk) |            | M1 Direction  |
- | Arduino D7  (PD7)  |--- EN ---->| OE    (Out Enable)|--- Q0..Q7->| M2 Direction  |
- | Arduino D8  (PB0)  |--- SER --->| DS    (Data In)   |            | M3 Left Track |
- | Arduino D12 (PB4)  |--- LATCH-->| ST_CP (Latch Clk) |            | M4 Right Track|
- +--------------------+            +-------------------+            +---------------+
+```mermaid
+flowchart LR
+    subgraph MCU ["ATmega328P (4 Control Pins)"]
+        D4["D4 (PD4) - Shift Clock"]
+        D7["D7 (PD7) - Output Enable"]
+        D8["D8 (PB0) - Serial Data"]
+        D12["D12 (PB4) - Storage Latch"]
+    end
+
+    subgraph ShiftReg ["74HC595 (8-Bit SIPO Shift Register)"]
+        SH_CP["SH_CP (Shift Clock)"]
+        OE["~OE (Output Enable)"]
+        DS["DS (Serial Data In)"]
+        ST_CP["ST_CP (Storage Latch)"]
+        OUTPUTS["Outputs Q0..Q7"]
+    end
+
+    subgraph HBridge ["Dual L293D H-Bridges"]
+        M1_DIR["Motor 1 Direction (Right Track)"]
+        M2_DIR["Motor 2 Direction"]
+        M3_DIR["Motor 3 Direction (Left Track)"]
+        M4_DIR["Motor 4 Direction"]
+    end
+
+    D4 -->|"CLK"| SH_CP
+    D7 -->|"EN (~OE)"| OE
+    D8 -->|"SER"| DS
+    D12 -->|"LATCH"| ST_CP
+
+    SH_CP & OE & DS & ST_CP --> OUTPUTS
+    OUTPUTS -->|"Q2, Q3"| M1_DIR
+    OUTPUTS -->|"Q1, Q4"| M2_DIR
+    OUTPUTS -->|"Q5, Q7"| M3_DIR
+    OUTPUTS -->|"Q0, Q6"| M4_DIR
 ```
 
 ### Output Bit Mapping (Q0 – Q7):
@@ -148,6 +174,31 @@ Transmission of an 8-bit direction byte from ATmega328P follows this sequence:
 3. Pull `DIR_LATCH` **HIGH** (latches the internal 8-bit shift buffer onto output pins Q0–Q7).
 4. Maintain `DIR_EN` (`PD7` / D7) **LOW** to keep the outputs enabled (active LOW).
 
+```mermaid
+sequenceDiagram
+    autonumber
+    participant MCU as ATmega328P (Firmware)
+    participant LATCH as DIR_LATCH (PB4 / D12)
+    participant CLK as DIR_CLK (PD4 / D4)
+    participant SER as DIR_SER (PB0 / D8)
+    participant REG as 74HC595 (Shift Register)
+    participant OUT as L293D Inputs (Q0..Q7)
+
+    Note over MCU,LATCH: Step 1: Open Storage Register
+    MCU->>LATCH: Pull LOW (ST_CP)
+    loop Step 2: Shift 8 Bits (MSB Bit 7 down to LSB Bit 0)
+        MCU->>CLK: Pull LOW (SH_CP)
+        MCU->>SER: Set Bit Data Level (DS)
+        MCU->>CLK: Pull HIGH (Rising Edge)
+        REG->>REG: Shift bit into internal stage
+    end
+    Note over MCU,LATCH: Step 3: Latch Parallel Outputs
+    MCU->>LATCH: Pull HIGH (ST_CP)
+    REG->>OUT: Update outputs Q0..Q7 simultaneously
+```
+
+#### Signal Waveform Timing:
+
 ```
 Serial Shift Timing Diagram:
 
@@ -166,20 +217,48 @@ See implementation in [`shift_reg.c`](../sw/trackedbot/drivers/shift_reg/shift_r
 
 Speed regulation is performed by driving the L293D enable inputs (`1,2EN`) with hardware Pulse Width Modulation (PWM):
 
-```
-       ATmega328P                         L293D (IC2 - Left Track)
-     +-------------+                    +---------------+
-     | PD6 (OC0A)  |---[PWM Speed M3]-->| 1,2EN  (Pin 1)|
-     | 74HC595 Q5  |---[Dir A (M3_A)]-->| 1A     (Pin 2)|---> M3 Output (Left Track)
-     | 74HC595 Q7  |---[Dir B (M3_B)]-->| 2A     (Pin 7)|
-     |             |                    +---------------+
-     |             |
-     |             |                      L293D (IC1 - Right Track)
-     |             |                    +---------------+
-     | PB3 (OC2A)  |---[PWM Speed M1]-->| 1,2EN  (Pin 1)|
-     | 74HC595 Q2  |---[Dir A (M1_A)]-->| 1A/3A         |---> M1 Output (Right Track)
-     | 74HC595 Q3  |---[Dir B (M1_B)]-->| 2A/4A         |
-     +-------------+                    +---------------+
+```mermaid
+flowchart LR
+    subgraph MCU_CTRL ["Microcontroller & Shift Register Outputs"]
+        PWM_M3["PD6 / OC0A<br/>(Timer0 Fast PWM)"]
+        DIR_M3_A["74HC595 Q5<br/>(Dir A - M3_A)"]
+        DIR_M3_B["74HC595 Q7<br/>(Dir B - M3_B)"]
+
+        PWM_M1["PB3 / OC2A<br/>(Timer2 Fast PWM)"]
+        DIR_M1_A["74HC595 Q2<br/>(Dir A - M1_A)"]
+        DIR_M1_B["74HC595 Q3<br/>(Dir B - M1_B)"]
+    end
+
+    subgraph IC2 ["L293D IC2 (Left Track Actuation)"]
+        EN_IC2["1,2EN (Pin 1)<br/>PWM Speed Enable"]
+        A1_IC2["1A (Pin 2)<br/>Half-Bridge 1"]
+        A2_IC2["2A (Pin 7)<br/>Half-Bridge 2"]
+        OUT_M3["M3 Output Channels"]
+        EN_IC2 & A1_IC2 & A2_IC2 --> OUT_M3
+    end
+
+    subgraph IC1 ["L293D IC1 (Right Track Actuation)"]
+        EN_IC1["1,2EN (Pin 1)<br/>PWM Speed Enable"]
+        A1_IC1["1A / 3A<br/>Half-Bridge 1"]
+        A2_IC1["2A / 4A<br/>Half-Bridge 2"]
+        OUT_M1["M1 Output Channels"]
+        EN_IC1 & A1_IC1 & A2_IC1 --> OUT_M1
+    end
+
+    subgraph Motors ["Track Actuators"]
+        LEFT_TRACK["Left Track DC Motor (M3)"]
+        RIGHT_TRACK["Right Track DC Motor (M1)"]
+    end
+
+    PWM_M3 -->|"PWM Duty Cycle"| EN_IC2
+    DIR_M3_A -->|"Direction Bit"| A1_IC2
+    DIR_M3_B -->|"Direction Bit"| A2_IC2
+    OUT_M3 ==>|"Bidirectional Drive"| LEFT_TRACK
+
+    PWM_M1 -->|"PWM Duty Cycle"| EN_IC1
+    DIR_M1_A -->|"Direction Bit"| A1_IC1
+    DIR_M1_B -->|"Direction Bit"| A2_IC1
+    OUT_M1 ==>|"Bidirectional Drive"| RIGHT_TRACK
 ```
 
 ```

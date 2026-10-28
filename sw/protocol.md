@@ -19,11 +19,29 @@ The protocol connects high-level telemetry/control clients (e.g. Python CLI, Web
 
 Every packet transmitted across the communication medium follows a uniform 4-part structure:
 
-```text
-+--------+--------+--------+--------------------------+--------+
-|  SYNC  | MSG_ID |  LEN   |         PAYLOAD          |  CRC8  |
-| 1 Byte | 1 Byte | 1 Byte |        0..16 Bytes       | 1 Byte |
-+--------+--------+--------+--------------------------+--------+
+```mermaid
+flowchart LR
+    SYNC["<b>SYNC</b><br/>1 Byte<br/><code>0xAA</code>"]
+    ID["<b>MSG_ID</b><br/>1 Byte<br/><code>0x01..0xFF</code>"]
+    LEN["<b>LEN</b><br/>1 Byte<br/><code>0..16</code>"]
+    PAYLOAD["<b>PAYLOAD</b><br/>0..16 Bytes<br/>Command / Telemetry"]
+    CRC["<b>CRC-8</b><br/>1 Byte<br/><code>0x00..0xFF</code>"]
+
+    SYNC --- ID --- LEN --- PAYLOAD --- CRC
+
+    subgraph CRC_SCOPE ["CRC-8 Calculation Scope (Polynomial 0x07)"]
+        direction LR
+        ID
+        LEN
+        PAYLOAD
+    end
+
+    style SYNC fill:#ffebee,stroke:#c62828,stroke-width:2px
+    style ID fill:#e8eaf6,stroke:#283593,stroke-width:2px
+    style LEN fill:#e8eaf6,stroke:#283593,stroke-width:2px
+    style PAYLOAD fill:#e1f5fe,stroke:#0288d1,stroke-width:2px
+    style CRC fill:#fff3e0,stroke:#ef6c00,stroke-width:2px
+    style CRC_SCOPE fill:#f5f5f5,stroke:#757575,stroke-width:1px,stroke-dasharray: 5 5
 ```
 
 | Field | Length | Value / Range | Description |

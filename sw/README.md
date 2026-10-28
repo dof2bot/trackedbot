@@ -293,12 +293,29 @@ Directly switching motor PWM from 0 to 255 produces massive inrush currents (up 
 ### Frame Anatomy & Integrity
 The firmware utilizes a deterministic binary serial protocol specified in [protocol.md](protocol.md). Packets use a compact 4-part structure with a maximum payload of 16 bytes:
 
-```text
-+--------+--------+--------+--------------------------+--------+
-|  SYNC  | MSG_ID | LENGTH |         PAYLOAD          | CRC-8  |
-| (0xAA) | (1 B)  | (1 B)  |        (0..16 B)         | (1 B)  |
-+--------+--------+--------+--------------------------+--------+
-         |<--------------- CRC-8 Scope -------------->|
+```mermaid
+flowchart LR
+    SYNC["<b>SYNC</b><br/>1 Byte<br/><code>0xAA</code>"]
+    ID["<b>MSG_ID</b><br/>1 Byte<br/><code>0x01..0xFF</code>"]
+    LEN["<b>LENGTH</b><br/>1 Byte<br/><code>0..16</code>"]
+    PAYLOAD["<b>PAYLOAD</b><br/>0..16 Bytes<br/>Command / Telemetry"]
+    CRC["<b>CRC-8</b><br/>1 Byte<br/><code>0x00..0xFF</code>"]
+
+    SYNC --- ID --- LEN --- PAYLOAD --- CRC
+
+    subgraph CRC_SCOPE ["CRC-8 Calculation Scope (Polynomial 0x07)"]
+        direction LR
+        ID
+        LEN
+        PAYLOAD
+    end
+
+    style SYNC fill:#ffebee,stroke:#c62828,stroke-width:2px
+    style ID fill:#e8eaf6,stroke:#283593,stroke-width:2px
+    style LEN fill:#e8eaf6,stroke:#283593,stroke-width:2px
+    style PAYLOAD fill:#e1f5fe,stroke:#0288d1,stroke-width:2px
+    style CRC fill:#ffe0b2,stroke:#ef6c00,stroke-width:2px
+    style CRC_SCOPE fill:#f5f5f5,stroke:#757575,stroke-width:1px,stroke-dasharray: 5 5
 ```
 
 - **SYNC (0xAA):** Preamble byte for byte-stream boundary synchronization.

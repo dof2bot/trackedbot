@@ -25,33 +25,40 @@ Reference Documentation & Datasheets:
 
 The `tracked_bot` system separates sensitive digital processing logic from inductive, high-current motor drive loads:
 
-```
-  +--------------------------------------------------------------------------------+
-  |                             SYSTEM POWER TOPOLOGY                              |
-  +--------------------------------------------------------------------------------+
+```mermaid
+flowchart TD
+    subgraph MotorPower ["Isolated Motor Power Rail (High Current)"]
+        BAT["Motor Battery Pack<br/>(2S Li-Ion / Li-Po: 7.4V - 8.4V)"]
+        EXT_PWR["EXT_PWR Screw Terminals<br/>(L293D Shield)"]
+        IC1["L293D IC1<br/>(Channels M1 & M2)"]
+        IC2["L293D IC2<br/>(Channels M3 & M4)"]
+        MOTOR_R["Right Track Motor (M1)"]
+        MOTOR_L["Left Track Motor (M3)"]
 
-        [Motor Battery: 2S Li-Ion 7.4V - 8.4V]      [Logic Supply: USB 5V / Power Bank]
-                        |                                            |
-                        v                                            v
-           +--------------------------+                 +--------------------------+
-           | EXT_PWR Screw Terminals  |                 | USB Connector / 5V Rail  |
-           |  (L293D Motor Shield)    |                 |   (TZT Uno WiFi R3)      |
-           +------------+-------------+                 +------------+-------------+
-                        |                                            |
-        +---------------+---------------+                            |
-        |                               |                            |
-        v                               v                            v
-  +-----------+                   +-----------+                +-----------+
-  | L293D IC1 |                   | L293D IC2 |                | ATmega328P| (5V Logic)
-  | (M1 & M2) |                   | (M3 & M4) |                +-----+-----+
-  +-----+-----+                   +-----+-----+                      |
-        |                               |                            v
-        v                               v                      +-----------+
-  [Right Track Motor]            [Left Track Motor]            |  ESP8266  | (3.3V LDO)
-        (M1)                            (M3)                   +-----------+
+        BAT ==>|"Fused High Current"| EXT_PWR
+        EXT_PWR ==>|"Motor Power Bus"| IC1
+        EXT_PWR ==>|"Motor Power Bus"| IC2
+        IC1 ==>|"PWM Drive"| MOTOR_R
+        IC2 ==>|"PWM Drive"| MOTOR_L
+    end
 
-  ==================================================================================
-  COMMON GROUND (GND): All power sources share a single low-impedance ground return
+    subgraph LogicPower ["Isolated Logic Power Rail (Low Noise)"]
+        USB["Logic Supply<br/>(USB 5.0V / Power Bank)"]
+        ATMEGA["ATmega328P<br/>(5.0V Digital Logic)"]
+        LDO["Onboard 3.3V LDO"]
+        ESP["ESP8266EX<br/>(3.3V Wi-Fi SoC)"]
+
+        USB -->|"5V Rail"| ATMEGA
+        USB -->|"5V Rail"| LDO
+        LDO -->|"3.3V Rail"| ESP
+    end
+
+    subgraph GroundReturn ["Common Reference"]
+        GND["COMMON GROUND (GND)<br/>Single low-impedance star ground return plane"]
+    end
+
+    MotorPower --- GND
+    LogicPower --- GND
 ```
 
 ---
@@ -126,18 +133,20 @@ To quench brush arcing and suppress RF noise:
 
 To prevent deep discharging of Li-Ion/Li-Po batteries (which must never drop below 3.0 V per cell / 6.0 V total for a 2S pack), an analog voltage sensing circuit is connected to analog input **`A0`** (`PC0`):
 
-```
-  V_BAT (7.4V - 8.4V)
-         |
-         +----+
-              |
-             [R1: 30 kΩ]
-              |
-              +--------> Arduino Pin A0 (ADC0)
-              |
-             [R2: 10 kΩ]
-              |
-             GND
+```mermaid
+flowchart TD
+    VBAT["V_BAT (7.4V - 8.4V)<br/>Battery Positive Lead"]
+    R1["R1: 30 kΩ<br/>(Top Resistor)"]
+    TAP{"Voltage Sense Tap Point<br/>K = 0.25 (1/4 Ratio)"}
+    R2["R2: 10 kΩ<br/>(Bottom Resistor)"]
+    A0["Arduino Pin A0 (ADC0)<br/>V_ADC: 0.0V - 2.10V"]
+    GND["Common Ground (GND)"]
+
+    VBAT --> R1
+    R1 --> TAP
+    TAP -->|"V_ADC = V_BAT / 4"| A0
+    TAP --> R2
+    R2 --> GND
 ```
 
 ### Voltage Divider Calculation:
