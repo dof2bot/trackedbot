@@ -3,7 +3,7 @@
 Hardware power engineering guide, power distribution topology, battery sizing, and electrical noise protection for the **tracked_bot** autonomous robotics platform.
 
 Reference Documentation & Datasheets:
-- Main Controller: [main_board.md](main_board.md) | [datasheets/atmega328p.pdf](datasheets/atmega328p.pdf) | [datasheets/esp8266ex.pdf](datasheets/esp8266ex.pdf)
+- Main Controller: [main_board.md](main_board.md) | [datasheets/atmega328p.pdf](datasheets/atmega328p.pdf)
 - Motor Driver: [motor_shield.md](motor_shield.md) | [datasheets/l293.pdf](datasheets/l293.pdf)
 - Board Images: [images/motor_driver_shield.png](images/motor_driver_shield.png) | [images/motor_driver_shield_pinout.png](images/motor_driver_shield_pinout.png)
 
@@ -45,12 +45,10 @@ flowchart TD
     subgraph LogicPower ["<b>Isolated Logic Power Rail (Low Noise)</b>"]
         USB["<b>Logic Supply</b><br/>USB 5.0V / Power Bank"]
         ATMEGA["<b>ATmega328P MCU</b><br/>5.0V Digital Logic"]
-        LDO["<b>Onboard 3.3V LDO</b><br/>Voltage Regulator"]
-        ESP["<b>ESP8266EX SoC</b><br/>3.3V Wi-Fi Coprocessor"]
+        UART_BRG["<b>USB-UART Bridge</b><br/>ATmega16U2 / CH340G"]
 
         USB -->|"5V Rail"| ATMEGA
-        USB -->|"5V Rail"| LDO
-        LDO -->|"3.3V Rail"| ESP
+        USB -->|"5V Rail"| UART_BRG
     end
 
     subgraph GroundReturn ["<b>Common Reference</b>"]
@@ -111,12 +109,11 @@ Differential skid-steering tracked vehicles demand sustained current when overco
 | Subsystem | Component | Typical Idle Current | Active / Operating Current | Peak / Stall Current |
 | :--- | :--- | :---: | :---: | :---: |
 | **Controller** | ATmega328P (16 MHz, 5V) | 12 mA | 18 mA | 20 mA |
-| **Wi-Fi Module** | ESP8266EX (80 MHz, TX mode) | 35 mA | 80 mA | 170 mA (RF bursts) |
-| **USB Interface** | CH340G Bridge | 10 mA | 12 mA | 15 mA |
+| **USB Interface** | ATmega16U2 / CH340G Bridge | 10 mA | 12 mA | 15 mA |
 | **Shift Register** | SN74HC595N Logic | < 1 mA | 5 mA | 10 mA |
 | **Left Motor (M3)** | DC Gearmotor (3–6V / 7.4V) | 0 mA | 180 – 350 mA (cruising) | 800 mA – 1.2 A (stall) |
 | **Right Motor (M4)** | DC Gearmotor (3–6V / 7.4V) | 0 mA | 180 – 350 mA (cruising) | 800 mA – 1.2 A (stall) |
-| **Total System** | | **~60 mA** | **~450 – 800 mA** | **~1.8 A – 2.5 A** |
+| **Total System** | | **~25 mA** | **~380 – 730 mA** | **~1.6 A – 2.4 A** |
 
 > [!NOTE]
 > During in-place pivot turns (`MOTION_SPIN_LEFT` / `MOTION_SPIN_RIGHT`), both motors draw maximum torque against the ground resistance. The power supply must be capable of delivering at least **2.0 A peak** without dropping below 6.5 V on the `EXT_PWR` rail.

@@ -48,7 +48,7 @@ The main chassis plate is precision-cut and CNC-bent from **2.0 mm thick 6061 sa
 As shown in [images/body_platform.png](images/body_platform.png), the upper deck incorporates:
 - **Central Cable Pass-Through Hole ($\varnothing \approx 18\text{ mm}$):** Allows motor power leads, battery cables, and encoder wires to route directly up from the lower equipment bay to the controller shield without exterior hanging wires.
 - **Four Longitudinal Adjustment Slots ($4 \times 35\text{ mm}$):** Permit continuous linear positioning for sensor brackets, camera pan-tilt gimbals, ultrasonic distance sensors, or battery securing straps.
-- **M3 Mounting Hole Array:** Pre-tapped and clearance holes matching the standard Arduino Uno R3 / Mega 2560 standoff pitch ($53.3\text{ mm} \times 27.9\text{ mm}$), ensuring rigid mounting of the Uno+WiFi R3 and L293D motor driver stack.
+- **M3 Mounting Hole Array:** Pre-tapped and clearance holes matching the standard Arduino Uno R3 / Mega 2560 standoff pitch ($53.3\text{ mm} \times 27.9\text{ mm}$), ensuring rigid mounting of the Arduino Uno R3 and L293D motor driver stack.
 
 ### 3. Drive Sprockets vs. Idler Wheels
 - **Toothed Drive Sprockets (Rear):** Machined from solid aluminum with radial weight-reduction cutouts. The outer circumference features positive-engagement gear teeth that mate precisely with the drive windows of the caterpillar track links. Each sprocket hub contains two M3 set-screws (grub screws) that lock onto the flat facet of the motor D-shaft.

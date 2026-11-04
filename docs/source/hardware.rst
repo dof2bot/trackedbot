@@ -1,7 +1,7 @@
 Hardware & Electrical Architecture
 ==================================
 
-The **trackedbot** electrical hardware is built on a modular dual-processor computing stack using the standard Arduino Uno R3 mechanical and electrical footprint.
+The **trackedbot** electrical hardware is built on a modular computing stack using the standard Arduino Uno R3 mechanical and electrical footprint.
 
 Hardware Stack Overview
 -----------------------
@@ -15,8 +15,8 @@ Hardware Stack Overview
      - Function
      - Reference
    * - **Main Controller**
-     - **Uno+WiFi R3**
-     - ATmega328P (16 MHz) + ESP8266 (80 MHz)
+     - **Arduino Uno R3**
+     - ATmega328P (16 MHz) + Hardware USART0
      - `main_board.md <https://github.com/dof2bot/trackedbot/blob/dev/hw/main_board.md>`_
    * - **Motor Driver**
      - **L293D Shield**
@@ -31,51 +31,17 @@ Hardware Stack Overview
      - 6061 Aluminum chassis + DC gearmotors
      - :doc:`mechanical`
 
-Main Controller: Uno+WiFi R3
-----------------------------
+Main Controller: Arduino Uno R3
+-------------------------------
 
-The controller board integrates an **ATmega328P** AVR microcontroller, an **ESP8266EX** Wi-Fi coprocessor, and a **CH340G** USB-UART bridge. An onboard 8-position DIP switch routes the serial UART lines:
+The controller board is based on the **ATmega328P** 8-bit AVR RISC microcontroller clocked at 16 MHz with an onboard USB-to-UART bridge (ATmega16U2 or CH340G).
 
-.. list-table::
-   :widths: 15 10 10 10 10 10 10 10 15
-   :header-rows: 1
+Serial communication with the host computer or navigation computer is established via the hardware USART0 peripheral:
 
-   * - Mode
-     - SW1
-     - SW2
-     - SW3
-     - SW4
-     - SW5
-     - SW6
-     - SW7
-     - Description
-   * - **Flash ATmega328P**
-     - OFF
-     - OFF
-     - ON
-     - ON
-     - OFF
-     - OFF
-     - OFF
-     - USB connected to ATmega328P (make flash)
-   * - **Flash ESP8266**
-     - OFF
-     - OFF
-     - OFF
-     - OFF
-     - ON
-     - ON
-     - ON
-     - USB connected to ESP8266 (BOOT mode)
-   * - **Run / Wi-Fi Bridge**
-     - ON
-     - ON
-     - OFF
-     - OFF
-     - OFF
-     - OFF
-     - OFF
-     - ATmega328P connected to ESP8266 via UART
+* **Baud Rate:** 115200 baud
+* **Frame Format:** 8 Data Bits, No Parity, 1 Stop Bit (8-N-1)
+* **Interface:** Hardware USART0 (``PD0/RXD``, ``PD1/TXD``) via USB Type-B or direct TTL serial connection.
+* **Firmware Flashing:** Handled via the Optiboot / STK500v1 bootloader over serial USB (``make flash``).
 
 Motor Driver Shield: L293D & 74HC595
 ------------------------------------
@@ -98,6 +64,6 @@ Detailed Guides
 ---------------
 
 * `Hardware Architecture Master Guide (hw/README.md) <https://github.com/dof2bot/trackedbot/blob/dev/hw/README.md>`_
-* `Main Controller & DIP Switches (hw/main_board.md) <https://github.com/dof2bot/trackedbot/blob/dev/hw/main_board.md>`_
+* `Main Controller & Architecture (hw/main_board.md) <https://github.com/dof2bot/trackedbot/blob/dev/hw/main_board.md>`_
 * `L293D Motor Shield Registers (hw/motor_shield.md) <https://github.com/dof2bot/trackedbot/blob/dev/hw/motor_shield.md>`_
 * `Power Supply & Battery Calculations (hw/power_supply.md) <https://github.com/dof2bot/trackedbot/blob/dev/hw/power_supply.md>`_

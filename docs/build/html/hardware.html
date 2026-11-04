@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Hardware &amp; Electrical Architecture &#8212; trackedbot 1.0.0 documentation</title>
+    <title>Hardware &amp; Electrical Architecture &#8212; trackedbot 1.0.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="_static/classic.css?v=ab2648fd" />
     
-    <script src="_static/documentation_options.js?v=8d563738"></script>
+    <script src="_static/documentation_options.js?v=292eb321"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     
@@ -32,7 +32,7 @@
         <li class="right" >
           <a href="mechanical.html" title="Mechanical Platform &amp; Chassis"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">trackedbot 1.0.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">trackedbot 1.0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Hardware &amp; Electrical Architecture</a></li> 
       </ul>
     </div>  
@@ -44,7 +44,7 @@
             
   <section id="hardware-electrical-architecture">
 <h1>Hardware &amp; Electrical Architecture<a class="headerlink" href="#hardware-electrical-architecture" title="Link to this heading">¶</a></h1>
-<p>The <strong>trackedbot</strong> electrical hardware is built on a modular dual-processor computing stack using the standard Arduino Uno R3 mechanical and electrical footprint.</p>
+<p>The <strong>trackedbot</strong> electrical hardware is built on a modular computing stack using the standard Arduino Uno R3 mechanical and electrical footprint.</p>
 <section id="hardware-stack-overview">
 <h2>Hardware Stack Overview<a class="headerlink" href="#hardware-stack-overview" title="Link to this heading">¶</a></h2>
 <table class="docutils align-default">
@@ -63,8 +63,8 @@
 </thead>
 <tbody>
 <tr class="row-even"><td><p><strong>Main Controller</strong></p></td>
-<td><p><strong>Uno+WiFi R3</strong></p></td>
-<td><p>ATmega328P (16 MHz) + ESP8266 (80 MHz)</p></td>
+<td><p><strong>Arduino Uno R3</strong></p></td>
+<td><p>ATmega328P (16 MHz) + Hardware USART0</p></td>
 <td><p><a class="reference external" href="https://github.com/dof2bot/trackedbot/blob/dev/hw/main_board.md">main_board.md</a></p></td>
 </tr>
 <tr class="row-odd"><td><p><strong>Motor Driver</strong></p></td>
@@ -85,66 +85,16 @@
 </tbody>
 </table>
 </section>
-<section id="main-controller-uno-wifi-r3">
-<h2>Main Controller: Uno+WiFi R3<a class="headerlink" href="#main-controller-uno-wifi-r3" title="Link to this heading">¶</a></h2>
-<p>The controller board integrates an <strong>ATmega328P</strong> AVR microcontroller, an <strong>ESP8266EX</strong> Wi-Fi coprocessor, and a <strong>CH340G</strong> USB-UART bridge. An onboard 8-position DIP switch routes the serial UART lines:</p>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 15.0%" />
-<col style="width: 10.0%" />
-<col style="width: 10.0%" />
-<col style="width: 10.0%" />
-<col style="width: 10.0%" />
-<col style="width: 10.0%" />
-<col style="width: 10.0%" />
-<col style="width: 10.0%" />
-<col style="width: 15.0%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>Mode</p></th>
-<th class="head"><p>SW1</p></th>
-<th class="head"><p>SW2</p></th>
-<th class="head"><p>SW3</p></th>
-<th class="head"><p>SW4</p></th>
-<th class="head"><p>SW5</p></th>
-<th class="head"><p>SW6</p></th>
-<th class="head"><p>SW7</p></th>
-<th class="head"><p>Description</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><strong>Flash ATmega328P</strong></p></td>
-<td><p>OFF</p></td>
-<td><p>OFF</p></td>
-<td><p>ON</p></td>
-<td><p>ON</p></td>
-<td><p>OFF</p></td>
-<td><p>OFF</p></td>
-<td><p>OFF</p></td>
-<td><p>USB connected to ATmega328P (make flash)</p></td>
-</tr>
-<tr class="row-odd"><td><p><strong>Flash ESP8266</strong></p></td>
-<td><p>OFF</p></td>
-<td><p>OFF</p></td>
-<td><p>OFF</p></td>
-<td><p>OFF</p></td>
-<td><p>ON</p></td>
-<td><p>ON</p></td>
-<td><p>ON</p></td>
-<td><p>USB connected to ESP8266 (BOOT mode)</p></td>
-</tr>
-<tr class="row-even"><td><p><strong>Run / Wi-Fi Bridge</strong></p></td>
-<td><p>ON</p></td>
-<td><p>ON</p></td>
-<td><p>OFF</p></td>
-<td><p>OFF</p></td>
-<td><p>OFF</p></td>
-<td><p>OFF</p></td>
-<td><p>OFF</p></td>
-<td><p>ATmega328P connected to ESP8266 via UART</p></td>
-</tr>
-</tbody>
-</table>
+<section id="main-controller-arduino-uno-r3">
+<h2>Main Controller: Arduino Uno R3<a class="headerlink" href="#main-controller-arduino-uno-r3" title="Link to this heading">¶</a></h2>
+<p>The controller board is based on the <strong>ATmega328P</strong> 8-bit AVR RISC microcontroller clocked at 16 MHz with an onboard USB-to-UART bridge (ATmega16U2 or CH340G).</p>
+<p>Serial communication with the host computer or navigation computer is established via the hardware USART0 peripheral:</p>
+<ul class="simple">
+<li><p><strong>Baud Rate:</strong> 115200 baud</p></li>
+<li><p><strong>Frame Format:</strong> 8 Data Bits, No Parity, 1 Stop Bit (8-N-1)</p></li>
+<li><p><strong>Interface:</strong> Hardware USART0 (<code class="docutils literal notranslate"><span class="pre">PD0/RXD</span></code>, <code class="docutils literal notranslate"><span class="pre">PD1/TXD</span></code>) via USB Type-B or direct TTL serial connection.</p></li>
+<li><p><strong>Firmware Flashing:</strong> Handled via the Optiboot / STK500v1 bootloader over serial USB (<code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">flash</span></code>).</p></li>
+</ul>
 </section>
 <section id="motor-driver-shield-l293d-74hc595">
 <h2>Motor Driver Shield: L293D &amp; 74HC595<a class="headerlink" href="#motor-driver-shield-l293d-74hc595" title="Link to this heading">¶</a></h2>
@@ -168,7 +118,7 @@
 <h2>Detailed Guides<a class="headerlink" href="#detailed-guides" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p><a class="reference external" href="https://github.com/dof2bot/trackedbot/blob/dev/hw/README.md">Hardware Architecture Master Guide (hw/README.md)</a></p></li>
-<li><p><a class="reference external" href="https://github.com/dof2bot/trackedbot/blob/dev/hw/main_board.md">Main Controller &amp; DIP Switches (hw/main_board.md)</a></p></li>
+<li><p><a class="reference external" href="https://github.com/dof2bot/trackedbot/blob/dev/hw/main_board.md">Main Controller &amp; Architecture (hw/main_board.md)</a></p></li>
 <li><p><a class="reference external" href="https://github.com/dof2bot/trackedbot/blob/dev/hw/motor_shield.md">L293D Motor Shield Registers (hw/motor_shield.md)</a></p></li>
 <li><p><a class="reference external" href="https://github.com/dof2bot/trackedbot/blob/dev/hw/power_supply.md">Power Supply &amp; Battery Calculations (hw/power_supply.md)</a></p></li>
 </ul>
@@ -190,7 +140,7 @@
     <ul>
 <li><a class="reference internal" href="#">Hardware &amp; Electrical Architecture</a><ul>
 <li><a class="reference internal" href="#hardware-stack-overview">Hardware Stack Overview</a></li>
-<li><a class="reference internal" href="#main-controller-uno-wifi-r3">Main Controller: Uno+WiFi R3</a></li>
+<li><a class="reference internal" href="#main-controller-arduino-uno-r3">Main Controller: Arduino Uno R3</a></li>
 <li><a class="reference internal" href="#motor-driver-shield-l293d-74hc595">Motor Driver Shield: L293D &amp; 74HC595</a></li>
 <li><a class="reference internal" href="#power-distribution-isolation">Power Distribution &amp; Isolation</a></li>
 <li><a class="reference internal" href="#detailed-guides">Detailed Guides</a></li>
@@ -246,7 +196,7 @@
         <li class="right" >
           <a href="mechanical.html" title="Mechanical Platform &amp; Chassis"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">trackedbot 1.0.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">trackedbot 1.0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Hardware &amp; Electrical Architecture</a></li> 
       </ul>
     </div>

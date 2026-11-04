@@ -15,7 +15,7 @@ trackedbot
    :width: 500px
    :alt: trackedbot Mobile Platform
 
-An autonomous tracked mobile robot platform built on the all-metal T101 aluminum chassis, powered by an Uno+WiFi R3 (ATmega328P + ESP8266) dual-processor board, L293D motor driver shield, and modular embedded C firmware adhering to SOLID and Hexagonal architecture principles.
+An autonomous tracked mobile robot platform built on the all-metal T101 aluminum chassis, powered by an Arduino Uno R3 (ATmega328P) microcontroller board, L293D motor driver shield, and modular embedded C firmware adhering to SOLID and Hexagonal architecture principles.
 
 |GitHub issues| |GitHub contributors| |Documentation Status|
 

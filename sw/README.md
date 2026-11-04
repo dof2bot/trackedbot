@@ -260,7 +260,7 @@ To satisfy the **Open/Closed Principle (OCP)** and eliminate fragile global macr
 
 * **L293D Shield Pin Mappings:** Port registers (`DDRD`, `PORTD`, `DDRB`, `PORTB`) and Timer0 / Timer2 fast PWM configuration (`TCCR0A`, `TCCR0B`, `OCR0A`, `TCCR2A`, `TCCR2B`, `OCR2A`) are defined solely inside `drivers/l293d_shield/l293d_shield.c`. For electrical pinout details, see [../hw/motor_shield.md](../hw/motor_shield.md).
 * **74HC595 Direction Latch:** Serial clock (`PD4`), latch (`PB4`), serial data (`PB0`), and output enable (`PD7`) are isolated inside `drivers/shift_reg/shift_reg.c`.
-* **USART0 Hardware Registers:** Baud rate registers (`UBRR0H`, `UBRR0L`), control registers (`UCSR0A`, `UCSR0B`, `UCSR0C`), and interrupt vectors (`USART_RX_vect`, `USART_UDRE_vect`) are encapsulated within `drivers/uart_avr/uart_avr.c`. For Wi-Fi ESP8266 routing via DIP switches, see [../hw/main_board.md](../hw/main_board.md).
+* **USART0 Hardware Registers:** Baud rate registers (`UBRR0H`, `UBRR0L`), control registers (`UCSR0A`, `UCSR0B`, `UCSR0C`), and interrupt vectors (`USART_RX_vect`, `USART_UDRE_vect`) are encapsulated within `drivers/uart_avr/uart_avr.c`. For serial UART hardware details, see [../hw/main_board.md](../hw/main_board.md).
 * **Timer1 System Tick:** 16-bit Timer1 CTC registers (`TCCR1B`, `OCR1A = 249`), prescaler 64, and the 1 ms tick interrupt (`TIMER1_COMPA_vect`) are encapsulated within `drivers/timer_avr/timer_avr.c`.
 * **Status LED (PB5):** Data Direction (`DDRB5`), output latch (`PORTB5`), and the single-cycle hardware toggle via input register `PINB5` are encapsulated within `drivers/led_status/led_status.c`.
 
@@ -618,7 +618,7 @@ classDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    actor Client as Remote Client / ESP8266 Wi-Fi
+    actor Client as Host Controller (UART)
     participant USART as USART0 (uart_avr)
     participant Parser as command_parser (FSM)
     participant CRC as crc8
@@ -671,6 +671,6 @@ sequenceDiagram
 * **[Udev Device Configuration Script (scripts/setup_udev.sh)](scripts/setup_udev.sh)**: Linux udev rules for persistent `/dev/tracked_bot` port symlinks and flashing permissions.
 * **[Hardware Overview (../hw/README.md)](../hw/README.md)**: Master unified pinout matrix, dual-supply architecture, and hardware sitemap.
 * **[Motor Driver Shield (../hw/motor_shield.md)](../hw/motor_shield.md)**: Timer0 & Timer2 PWM registers (`OCR0A`/`OCR2A`), 74HC595 direction multiplexer, and M3 (Left Track) / M1 (Right Track) split-chip mapping.
-* **[Main Controller Board (../hw/main_board.md)](../hw/main_board.md)**: Uno+WiFi R3 (ATmega328P + ESP8266), 8-position DIP switch configurations, and flashing procedures.
+* **[Main Controller Board (../hw/main_board.md)](../hw/main_board.md)**: Arduino Uno R3 (ATmega328P), hardware USART0 architecture, pinout, and flashing procedures.
 * **[Power Supply & Rails (../hw/power_supply.md)](../hw/power_supply.md)**: Dual-rail isolation (`EXT_PWR` vs. USB), motor EMI filtering, and battery current budgets.
 * **[Mechanical Chassis & Assembly (../body/README.md)](../body/README.md)**: T101 platform specifications, skid-steering kinematics, and physical assembly guide.

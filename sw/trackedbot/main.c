@@ -167,7 +167,7 @@ int main(void) {
     uint32_t now = timer_avr_millis();
     (void)led_status_update(error_handler_get_mode(&s_error_handler), now);
 
-    /* Process incoming line-based commands from WiFi / Serial. */
+    /* Process incoming line-based commands from Serial UART. */
     (void)command_parser_process(&s_parser);
 
     /* Periodic safety watchdog & kinematics ramp update every 20ms. */

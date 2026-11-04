@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # @brief   Setup udev rules and persistent symlink for tracked_bot flashing
-# @version 1.0.0
+# @version 1.0.1
 # @date    Fri Sep 18 17:15:00 2026
 # @company None, free software to use 2026
 # @author  Vladimir Roncevic <elektron.ronca@gmail.com>
@@ -29,7 +29,7 @@ cat << 'EOF' > "${RULES_FILE}"
 # and creates persistent /dev/tracked_bot symlink for make flash.
 # -----------------------------------------------------------------------------
 
-# CH340 / CH341 USB-to-UART (Wemos Uno+WiFi / Arduino Uno clone)
+# CH340 / CH341 USB-to-UART (Arduino Uno clone)
 SUBSYSTEM=="tty", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="7523", MODE="0666", GROUP="dialout", ENV{ID_MM_DEVICE_IGNORE}="1", ENV{BRLTTY_DEVICE_IGNORE}="1", SYMLINK+="tracked_bot"
 
 # Official Arduino Uno R3 (ATmega16U2)
