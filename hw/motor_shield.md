@@ -86,8 +86,8 @@ The shield occupies digital pins **D3 through D12**. Digital pins **D0, D1, D2, 
 
 | Arduino Pin | AVR Pin | Shield Net / Function | Dedicated Usage on Shield | `tracked_bot` Status / Usage |
 | :--- | :--- | :--- | :--- | :--- |
-| **D0 (RX)** | `PD0` | *Unused by shield* | None | **USART0 RX** – Serial communication with ESP8266 WiFi |
-| **D1 (TX)** | `PD1` | *Unused by shield* | None | **USART0 TX** – Serial communication with ESP8266 WiFi |
+| **D0 (RX)** | `PD0` | *Unused by shield* | None | **USART0 RX** – Serial UART reception from Host (115200 8-N-1) |
+| **D1 (TX)** | `PD1` | *Unused by shield* | None | **USART0 TX** – Serial UART telemetry transmission to Host (115200 8-N-1) |
 | **D2** | `PD2` | *Unused by shield* | None | **FREE GPIO** – External Interrupt 0 (`INT0`), sensors, encoders |
 | **D3** | `PD3` | `PWM2B` (OC2B) | Motor 2 Speed / Enable (IC1 3,4EN) | Reserved (unused on tracked platform) |
 | **D4** | `PD4` | `DIR_CLK` | 74HC595 Shift Clock | **74HC595 Clock Line** |

@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Software Architecture &amp; SOLID Design &#8212; trackedbot 1.0.0 documentation</title>
+    <title>Software Architecture &amp; SOLID Design &#8212; trackedbot 1.0.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="_static/classic.css?v=ab2648fd" />
     
-    <script src="_static/documentation_options.js?v=8d563738"></script>
+    <script src="_static/documentation_options.js?v=292eb321"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -29,7 +29,7 @@
         <li class="right" >
           <a href="hardware.html" title="Hardware &amp; Electrical Architecture"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">trackedbot 1.0.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">trackedbot 1.0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Software Architecture &amp; SOLID Design</a></li> 
       </ul>
     </div>  
@@ -63,7 +63,7 @@
 </section>
 <section id="binary-communication-protocol-icd">
 <h2>Binary Communication Protocol (ICD)<a class="headerlink" href="#binary-communication-protocol-icd" title="Link to this heading">¶</a></h2>
-<p>The firmware implements a deterministic binary protocol over UART / Wi-Fi (115200 baud, 8-N-1):</p>
+<p>The firmware implements a deterministic binary protocol over UART (115200 baud, 8-N-1):</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>+--------+--------+--------+--------------------------+--------+
 |  SYNC  | MSG_ID |  LEN   |         PAYLOAD          |  CRC8  |
 | 1 Byte | 1 Byte | 1 Byte |        0..16 Bytes       | 1 Byte |
@@ -147,7 +147,7 @@
         <li class="right" >
           <a href="hardware.html" title="Hardware &amp; Electrical Architecture"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">trackedbot 1.0.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">trackedbot 1.0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Software Architecture &amp; SOLID Design</a></li> 
       </ul>
     </div>

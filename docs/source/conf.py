@@ -15,7 +15,7 @@ copyright = '2026, Vladimir Roncevic <elektron.ronca@gmail.com>'
 author = 'Vladimir Roncevic <elektron.ronca@gmail.com>'
 
 version = '1.0'
-release = '1.0.0'
+release = '1.0.1'
 
 # -- General configuration ---------------------------------------------------
 

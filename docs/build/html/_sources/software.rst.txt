@@ -23,7 +23,7 @@ Core Domain Components
 Binary Communication Protocol (ICD)
 -----------------------------------
 
-The firmware implements a deterministic binary protocol over UART / Wi-Fi (115200 baud, 8-N-1):
+The firmware implements a deterministic binary protocol over UART (115200 baud, 8-N-1):
 
 .. code-block:: text
 

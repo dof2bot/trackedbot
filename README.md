@@ -8,7 +8,7 @@
 - [Copyright and Licence](#copyright-and-licence)
 <!-- END doctoc -->
 
-An autonomous tracked mobile robot platform built on the all-metal T101 aluminum chassis, powered by an Uno+WiFi R3 (ATmega328P + ESP8266) dual-processor board, L293D motor driver shield, and modular embedded C firmware adhering to SOLID and Hexagonal architecture principles.
+An autonomous tracked mobile robot platform built on the all-metal T101 aluminum chassis, powered by an Arduino Uno R3 (ATmega328P) microcontroller board, L293D motor driver shield, and modular embedded C firmware adhering to SOLID and Hexagonal architecture principles.
 
 ![trackedbot Mobile Platform](body/images/body_platform.png)
 
@@ -18,7 +18,7 @@ An autonomous tracked mobile robot platform built on the all-metal T101 aluminum
 The **trackedbot** project is organized into three decoupled layers:
 
 - **[body/](body/README.md)** – Mechanical chassis, physical specs, track sizing, and assembly guide.
-- **[hw/](hw/README.md)** – Hardware schematics, Uno+WiFi R3, L293D shield, master pinout, and power distribution.
+- **[hw/](hw/README.md)** – Hardware schematics, Arduino Uno R3, L293D shield, master pinout, and power distribution.
 - **[sw/](sw/README.md)** – Embedded C firmware architecture, SOLID design, ports & adapters, and drivers.
 
 ```mermaid
@@ -26,9 +26,7 @@ flowchart TD
     CLIENT["<b>Host Client / Controller</b><br/>CLI, Web GUI, Autonomous Navigator"]
 
     subgraph COMM ["<b>Communication Medium</b>"]
-        direction LR
-        UART["<b>Serial UART</b><br/>115200 Baud 8-N-1"]
-        WIFI["<b>ESP8266 Wi-Fi</b><br/>Transparent Bridge"]
+        UART["<b>Serial UART</b><br/>115200 Baud 8-N-1 (USB / TTL)"]
     end
 
     subgraph SW ["<b>Software Layer (sw/)</b>"]
@@ -42,7 +40,7 @@ flowchart TD
 
     subgraph HW ["<b>Hardware Layer (hw/)</b>"]
         direction TB
-        MCU["<b>Uno+WiFi R3 Board</b><br/>ATmega328P @ 16 MHz"]
+        MCU["<b>Arduino Uno R3 Board</b><br/>ATmega328P @ 16 MHz"]
         SHIELD["<b>L293D Motor Shield</b><br/>Dual H-Bridge + 74HC595"]
         POWER["<b>Dual Power Supply Rails</b><br/>5V Logic + 7.4V Motor Power"]
         SENSE["<b>Battery Voltage Sensing</b><br/>ADC Pin A0 Voltage Divider"]
@@ -68,7 +66,7 @@ flowchart TD
     classDef bodyStyle fill:#701a75,stroke:#e879f9,stroke-width:2px,color:#ffffff;
 
     class CLIENT clientStyle;
-    class UART,WIFI commStyle;
+    class UART commStyle;
     class PARSER,CMD_DISPATCH,KINEMATICS,HAL swStyle;
     class MCU,SHIELD,POWER,SENSE hwStyle;
     class CHASSIS,TRACKS,MOTORS bodyStyle;

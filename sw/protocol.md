@@ -4,7 +4,7 @@
 
 This document defines the **Interface Control Document (ICD)** for the binary communication protocol used by the **Tracked Robot** (`tracked_bot`). 
 
-The protocol connects high-level telemetry/control clients (e.g. Python CLI, Web GUI, autonomous navigators) to the onboard ATmega328P microcontroller running at 16 MHz via UART (115200 baud, 8-N-1) or transparent ESP8266 WiFi bridges.
+The protocol connects high-level telemetry/control clients (e.g. Python CLI, Web GUI, autonomous navigators) to the onboard ATmega328P microcontroller running at 16 MHz via UART (115200 baud, 8-N-1).
 
 ### 1.1 Key Design Principles
 * **Deterministic & Compact:** Replaces ASCII text commands with compact fixed-header binary frames. A telemetry status frame is reduced from 65 bytes to 11 bytes (an **83% bandwidth reduction**).
@@ -394,7 +394,7 @@ stateDiagram-v2
 ## 8. Related Documentation & Architecture Links
 
 * **[Software Architecture & SOLID Design (README.md)](README.md)**: Hexagonal architecture, ports & adapters, circular ring buffers, and MISRA C status codes.
-* **[Main Controller Board (../hw/main_board.md)](../hw/main_board.md)**: Uno+WiFi R3 (ATmega328P + ESP8266), DIP switch settings for Wi-Fi transparent bridge mode (SW1/SW2 ON).
+* **[Main Controller Board (../hw/main_board.md)](../hw/main_board.md)**: Arduino Uno R3 (ATmega328P), hardware USART0 architecture, and serial pinout.
 * **[Motor Driver Shield (../hw/motor_shield.md)](../hw/motor_shield.md)**: L293D dual H-bridge shield, 74HC595 shift register direction multiplexing, and Timer0 PWM registers.
 * **[Power Distribution Architecture (../hw/power_supply.md)](../hw/power_supply.md)**: Dual-supply rail topology, battery budgeting, and motor EMI brush decoupling.
 * **[Mechanical Chassis & Kinematics (../body/README.md)](../body/README.md)**: T101 platform specifications and differential skid-steering kinematics.

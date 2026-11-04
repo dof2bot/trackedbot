@@ -25,7 +25,7 @@
  *  | Feature / Aspect   | Hardware Watchdog (WDT)    | Software Failsafe Watchdog    |
  *  +--------------------+----------------------------+-------------------------------+
  *  | Implementation     | Silicon peripheral (AVR)   | Application layer (core)      |
- *  | Protection Target  | Firmware freeze / Deadlock | Comm link loss (WiFi/UART)    |
+ *  | Protection Target  | Firmware freeze / Deadlock | Comm link loss (UART)         |
  *  | Timeout Threshold  | 2000 ms (WDTO_2S)          | 1000 ms (FAILSAFE_DEFAULT)    |
  *  | Feeding Mechanism  | wdt_reset() in superloop   | failsafe_feed() on valid RX   |
  *  | Expiration Action  | Hard MCU system reset      | tracked_motion_stop()         |

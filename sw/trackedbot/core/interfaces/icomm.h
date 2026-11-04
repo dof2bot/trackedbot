@@ -20,7 +20,7 @@
  * Defines the bidirectional communication abstraction conforming to the
  * Dependency Inversion Principle (DIP) in Clean Architecture. Decouples
  * high-level command parsing and telemetry serialization from concrete
- * hardware transports (USART0, ESP8266 WiFi, Bluetooth, or unit-test mocks).
+ * hardware transports (USART0, Bluetooth, or unit-test mocks).
  *
  * Ports & Adapters Architectural Flow:
  *
@@ -63,7 +63,7 @@ extern "C" {
  * @brief Abstract communication stream interface (Output Port / DIP).
  *
  * This interface allows dependency injection of different communication
- * transports (UART, WiFi, BLE, mock stream) without modifying domain logic.
+ * transports (UART, BLE, mock stream) without modifying domain logic.
  *
  * @param context Pointer to stream-specific context data.
  * @param available Function to check if data is available to read.
